@@ -23,7 +23,7 @@ from oauthlib.oauth2 import BackendApplicationClient
 from oauthlib.oauth2 import LegacyApplicationClient
 from requests.auth import HTTPBasicAuth
 from requests_oauthlib import OAuth2Session
-from robot import utils
+from robot.api import logger
 requests.packages.urllib3.disable_warnings()
 logging.getLogger('requests').setLevel(logging.WARNING)
 
@@ -63,9 +63,11 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
         Examples:
         | ${var} = | Create OAuth2 Session With Client Credentials Grant | Google | https://www.google.com | id | secret |
         """
-        logger.debug('Creating OAuth2 Session With Client Credentials Grant using : alias=%s, token_url=%s, tenant_id=%s, ' +
-                     'tenant_secret=%s, base_url=%s, headers=%s, cookies=%s, timeout=%s, proxies=%s, verify=%s ' %
-                     (alias, token_url, tenant_id, tenant_secret, base_url, headers, cookies, timeout, proxies, verify))
+        log_message = ('Creating OAuth2 Session With Client Credentials Grant using: alias=%s, token_url=%s, '
+                       'tenant_id=%s, tenant_secret=%s, base_url=%s, headers=%s, cookies=%s, timeout=%s, proxies=%s, '
+                       'verify=%s')
+        logger.debug(log_message % (alias, token_url, tenant_id, tenant_secret, base_url, headers, cookies, timeout,
+                                    proxies, verify))
         session = OAuth2Session(client=BackendApplicationClient(''))
         # cant use hooks :(
         session.url = base_url
@@ -112,11 +114,11 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
         Examples:
         | ${var} = | Create OAuth2 Session With Password Credentials Grant | Google | https://www.google.com | id | secret | username | password |
         """
-        logger.debug('Creating OAuth2 Session With Password Credentials Grant using : alias=%s, token_url=%s, ' +
-                     'tenant_id=%s, tenant_secret=%s, username=%s, password=%s, base_url=%s, headers=%s, cookies=%s, ' +
-                     'timeout=%s, proxies=%s, verify=%s ' % (alias, token_url, tenant_id, tenant_secret, username,
-                                                             password, base_url, headers, cookies, timeout, proxies,
-                                                             verify))
+        log_message = ('Creating OAuth2 Session With Password Credentials Grant using: alias=%s, token_url=%s, '
+                       'tenant_id=%s, tenant_secret=%s, username=%s, password=%s, base_url=%s, headers=%s, '
+                       'cookies=%s, timeout=%s, proxies=%s, verify=%s')
+        logger.debug(log_message % (alias, token_url, tenant_id, tenant_secret, username, password, base_url, headers,
+                                    cookies, timeout, proxies, verify))
         session = OAuth2Session(client=LegacyApplicationClient(''))
         # cant use hooks :(
         session.url = base_url
@@ -131,3 +133,140 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
                             password=password, verify=verify)
         self._cache.register(session, alias=alias)
         return session
+
+    def delete_request(self, alias, uri, data=(), headers=None, allow_redirects=None, **kwargs):
+        """Send a DELETE request on the session object found in the cache using the given `alias`
+
+        `alias` that will be used to identify the Session object in the cache
+
+        `uri` to send the DELETE request to
+
+        `data` a dictionary of key-value pairs that will be urlencoded and sent as DELETE data or binary data that is sent as the raw body content
+
+        `headers` a dictionary of headers to use with the request
+
+        `allow_redirects` a flag to allow connection redirects
+        """
+        session = self._cache.switch(alias)
+        response = session.delete(self._get_url(session, uri), data=self._utf8_urlencode(data), headers=headers,
+                                  cookies=self.cookies, timeout=self.timeout, allow_redirects=bool(allow_redirects),
+                                  **kwargs)
+        return self._finalize_response(session, response, 'DELETE')
+
+    def get_request(self, alias, uri, headers=None, params={}, allow_redirects=None, **kwargs):
+        """Send a GET request on the session object found in the cache using the given `alias`
+
+        `alias` that will be used to identify the Session object in the cache
+
+        `uri` to send the GET request to
+
+        `headers` a dictionary of headers to use with the request
+
+        `params` a dictionary of key-value pairs that will be urlencoded and sent as GET data
+
+        `allow_redirects` a flag to allow connection redirects
+        """
+        session = self._cache.switch(alias)
+        response = session.get(self._get_url(session, uri), headers=headers, params=self._utf8_urlencode(params),
+                               cookies=self.cookies, timeout=self.timeout, allow_redirects=bool(allow_redirects),
+                               **kwargs)
+        return self._finalize_response(session, response, 'GET')
+
+    def head_request(self, alias, uri, headers=None, allow_redirects=None, **kwargs):
+        """Send a HEAD request on the session object found in the cache using the given `alias`
+
+        `alias` that will be used to identify the Session object in the cache
+
+        `uri` to send the HEAD request to
+
+        `headers` a dictionary of headers to use with the request
+
+        `allow_redirects` a flag to allow connection redirects
+        """
+        session = self._cache.switch(alias)
+        response = session.head(self._get_url(session, uri), headers=headers, cookies=self.cookies,
+                                timeout=self.timeout, allow_redirects=bool(allow_redirects), **kwargs)
+        return self._finalize_response(session, response, 'HEAD')
+
+    def options_request(self, alias, uri, headers=None, allow_redirects=None, **kwargs):
+        """Send a OPTIONS request on the session object found in the cache using the given `alias`
+
+        `alias` that will be used to identify the Session object in the cache
+
+        `uri` to send the OPTIONS request to
+
+        `headers` a dictionary of headers to use with the request
+
+        `allow_redirects` a flag to allow connection redirects
+        """
+        session = self._cache.switch(alias)
+        response = session.options(self._get_url(session, uri), headers=headers, cookies=self.cookies,
+                                   timeout=self.timeout, allow_redirects=bool(allow_redirects), **kwargs)
+        return self._finalize_response(session, response, 'OPTIONS')
+
+    def patch_request(self, alias, uri, data={}, headers=None, files={}, allow_redirects=None, **kwargs):
+        """Send a PATCH request on the session object found in the cache using the given `alias`
+
+        `alias` that will be used to identify the Session object in the cache
+
+        `uri` to send the PATCH request to
+
+        `data` a dictionary of key-value pairs that will be urlencoded and sent as PATCH data or binary data that is sent as the raw body content
+
+        `headers` a dictionary of headers to use with the request
+
+        `files` a dictionary of file names containing file data to PATCH to the server
+
+        `allow_redirects` a flag to allow connection redirects
+        """
+        session = self._cache.switch(alias)
+        response = session.patch(self._get_url(session, uri), data=self._utf8_urlencode(data), headers=headers,
+                                 files=files, cookies=self.cookies, timeout=self.timeout,
+                                 allow_redirects=bool(allow_redirects), **kwargs)
+        return self._finalize_response(session, response, 'PATCH')
+
+    def post_request(self, alias, uri, data={}, headers=None, files={}, allow_redirects=None, **kwargs):
+        """Send a POST request on the session object found in the cache using the given `alias`
+
+        `alias` that will be used to identify the Session object in the cache
+
+        `uri` to send the POST request to
+
+        `data` a dictionary of key-value pairs that will be urlencoded and sent as POST data or binary data that is sent as the raw body content
+
+        `headers` a dictionary of headers to use with the request
+
+        `files` a dictionary of file names containing file data to POST to the server
+
+        `allow_redirects` a flag to allow connection redirects
+        """
+        session = self._cache.switch(alias)
+        response = session.post(self._get_url(session, uri), data=self._utf8_urlencode(data), headers=headers,
+                                files=files, cookies=self.cookies, timeout=self.timeout,
+                                allow_redirects=bool(allow_redirects), **kwargs)
+        return self._finalize_response(session, response, 'POST')
+
+    def put_request(self, alias, uri, data=None, headers=None, allow_redirects=None, **kwargs):
+        """Send a PUT request on the session object found in the cache using the given `alias`
+
+        `alias` that will be used to identify the Session object in the cache
+
+        `uri` to send the PUT request to
+
+        `data` a dictionary of key-value pairs that will be urlencoded and sent as PUT data or binary data that is sent as the raw body content
+
+        `headers` a dictionary of headers to use with the request
+
+        `allow_redirects` a flag to allow connection redirects
+        """
+        session = self._cache.switch(alias)
+        response = session.put(self._get_url(session, uri), data=self._utf8_urlencode(data), headers=headers,
+                               cookies=self.cookies, timeout=self.timeout, allow_redirects=bool(allow_redirects),
+                               **kwargs)
+        return self._finalize_response(session, response, 'PUT')
+
+    def _finalize_response(self, session, response, method):
+        # store the last response object
+        session.last_resp = response
+        self.builtin.log("%s response: %s" % (method, response.content), 'DEBUG')
+        return response
