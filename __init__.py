@@ -172,6 +172,13 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
                                **kwargs)
         return self._finalize_response(session, response, 'GET')
 
+    def get_session_object(self, alias):
+        """Returns the session object found in the cache using the given `alias`
+
+        `alias` that will be used to identify the Session object in the cache
+        """
+        return self._cache.switch(alias)
+
     def head_request(self, alias, uri, headers=None, allow_redirects=None, **kwargs):
         """Send a HEAD request on the session object found in the cache using the given `alias`
 
