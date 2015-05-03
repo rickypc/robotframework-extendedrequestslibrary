@@ -37,7 +37,7 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
 
     def create_oauth2_session_with_client_credentials_grant(self, alias, token_url, tenant_id, tenant_secret,
                                                             base_url=None, headers={}, cookies=None, timeout=None,
-                                                            proxies=None, verify=False):
+                                                            proxies=None, verify=False, **kwargs):
         """Create and return an OAuth2 session to a server with client credentials grant access token.
 
         `alias` is a Robot Framework alias to identify the OAuth2 session
@@ -78,13 +78,13 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
         self.timeout = timeout
         self.cookies = cookies
         self.verify = verify
-        session.fetch_token(token_url, auth=HTTPBasicAuth(tenant_id, tenant_secret), verify=verify)
+        session.fetch_token(token_url, auth=HTTPBasicAuth(tenant_id, tenant_secret), verify=verify, **kwargs)
         self._cache.register(session, alias=alias)
         return session
 
     def create_oauth2_session_with_password_credentials_grant(self, alias, token_url, tenant_id, tenant_secret, username,
                                                               password, base_url=None, headers={}, cookies=None,
-                                                              timeout=None, proxies=None, verify=False):
+                                                              timeout=None, proxies=None, verify=False, **kwargs):
         """Create and return an OAuth2 session to a server with client credentials grant access token.
 
         `alias` is a Robot Framework alias to identify the OAuth2 session
@@ -130,7 +130,7 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
         self.cookies = cookies
         self.verify = verify
         session.fetch_token(token_url, auth=HTTPBasicAuth(tenant_id, tenant_secret), username=username,
-                            password=password, verify=verify)
+                            password=password, verify=verify, **kwargs)
         self._cache.register(session, alias=alias)
         return session
 
@@ -177,6 +177,7 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
 
         `alias` that will be used to identify the Session object in the cache
         """
+        logger.debug(vars(self._cache.switch(alias)))
         return self._cache.switch(alias)
 
     def head_request(self, alias, uri, headers=None, allow_redirects=None, **kwargs):
