@@ -36,7 +36,7 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
     """
 
     def create_oauth2_session_with_client_credentials_grant(self, alias, token_url, tenant_id, tenant_secret,
-                                                            base_url=None, headers={}, cookies=None, timeout=None,
+                                                            base_url=None, headers={}, cookies=None, timeout=90,
                                                             proxies=None, verify=False, **kwargs):
         """Create and return an OAuth2 session to a server with client credentials grant access token.
 
@@ -54,7 +54,7 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
 
         `cookies` is a Dictionary of default cookies
 
-        `timeout` is the connection timeout
+        `timeout` is the connection timeout in seconds
 
         `proxies` is a Dictionary that contains proxy urls for HTTP and HTTPS communication
 
@@ -84,7 +84,7 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
 
     def create_oauth2_session_with_password_credentials_grant(self, alias, token_url, tenant_id, tenant_secret, username,
                                                               password, base_url=None, headers={}, cookies=None,
-                                                              timeout=None, proxies=None, verify=False, **kwargs):
+                                                              timeout=90, proxies=None, verify=False, **kwargs):
         """Create and return an OAuth2 session to a server with client credentials grant access token.
 
         `alias` is a Robot Framework alias to identify the OAuth2 session
@@ -105,7 +105,7 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
 
         `cookies` is a Dictionary of default cookies
 
-        `timeout` is the connection timeout
+        `timeout` is the connection timeout in seconds
 
         `proxies` is a Dictionary that contains proxy urls for HTTP and HTTPS communication
 
