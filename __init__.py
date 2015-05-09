@@ -24,6 +24,7 @@ from oauthlib.oauth2 import LegacyApplicationClient
 from requests.auth import HTTPBasicAuth
 from requests_oauthlib import OAuth2Session
 from robot.api import logger
+from urlparse import urlparse
 requests.packages.urllib3.disable_warnings()
 logging.getLogger('requests').setLevel(logging.WARNING)
 
@@ -34,6 +35,12 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
     """ ExtendedRequestsLibrary is a HTTP client keyword library that uses
     the requests module from Kenneth Reitz https://github.com/kennethreitz/requests
     """
+
+    ROBOT_LIBRARY_SCOPE = 'TEST SUITE'
+
+    def __init__(self):
+        RequestsLibrary.RequestsLibrary.__init__(self)
+        self._primers = {}
 
     def create_oauth2_session_with_client_credentials_grant(self, alias, token_url, tenant_id, tenant_secret,
                                                             base_url=None, headers={}, cookies=None, timeout=90,
@@ -68,16 +75,9 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
                        'verify=%s')
         logger.debug(log_message % (alias, token_url, tenant_id, tenant_secret, base_url, headers, cookies, timeout,
                                     proxies, verify))
+        self._register_urls(base_url, token_url)
         session = OAuth2Session(client=BackendApplicationClient(''))
-        # cant use hooks :(
-        session.url = base_url
-        session.headers.update(headers)
-        session.proxies = proxies if proxies else session.proxies
-        session.verify = self.builtin.convert_to_boolean(verify)
-        # cant pass these into the Session anymore
-        self.timeout = timeout
-        self.cookies = cookies
-        self.verify = verify
+        self._session_init(session, base_url, headers, proxies, verify, timeout, cookies)
         session.fetch_token(token_url, auth=HTTPBasicAuth(tenant_id, tenant_secret), verify=verify, **kwargs)
         self._cache.register(session, alias=alias)
         return session
@@ -119,16 +119,9 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
                        'cookies=%s, timeout=%s, proxies=%s, verify=%s')
         logger.debug(log_message % (alias, token_url, tenant_id, tenant_secret, username, password, base_url, headers,
                                     cookies, timeout, proxies, verify))
+        self._register_urls(base_url, token_url)
         session = OAuth2Session(client=LegacyApplicationClient(''))
-        # cant use hooks :(
-        session.url = base_url
-        session.headers.update(headers)
-        session.proxies = proxies if proxies else session.proxies
-        session.verify = self.builtin.convert_to_boolean(verify)
-        # cant pass these into the Session anymore
-        self.timeout = timeout
-        self.cookies = cookies
-        self.verify = verify
+        self._session_init(session, base_url, headers, proxies, verify, timeout, cookies)
         session.fetch_token(token_url, auth=HTTPBasicAuth(tenant_id, tenant_secret), username=username,
                             password=password, verify=verify, **kwargs)
         self._cache.register(session, alias=alias)
@@ -278,3 +271,25 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
         session.last_resp = response
         self.builtin.log("%s response: %s" % (method, response.content), 'DEBUG')
         return response
+
+    def _register_url(self, url=None):
+        host = urlparse(url).hostname
+        if host not in self._primers:
+            requests.head('%s' % url, verify=False)
+            self._primers[host] = 1
+
+    def _register_urls(self, base_url=None, token_url=None):
+        self._register_url(base_url)
+        self._register_url(token_url)
+
+    def _session_init(self, session=None, base_url=None, headers={}, proxies=None, verify=False, timeout=90,
+                      cookies=None):
+        # can't use hooks :(
+        session.url = base_url
+        session.headers.update(headers)
+        session.proxies = proxies if proxies else session.proxies
+        session.verify = self.builtin.convert_to_boolean(verify)
+        # cant pass these into the Session anymore
+        self.timeout = timeout
+        self.cookies = cookies
+        self.verify = verify
