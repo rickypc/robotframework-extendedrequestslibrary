@@ -18,7 +18,7 @@
 import logging
 import requests
 import RequestsLibrary
-from ExtendedSelenium2Library.version import get_version
+from ExtendedRequestsLibrary.version import get_version
 from oauthlib.oauth2 import BackendApplicationClient
 from oauthlib.oauth2 import LegacyApplicationClient
 from requests.auth import HTTPBasicAuth
