@@ -30,6 +30,7 @@ version:
 
 documentation:clean
 	python -m robot.libdoc src/ExtendedRequestsLibrary doc/ExtendedRequestsLibrary.html
+	python -m analytics doc/ExtendedRequestsLibrary.html
 
 documentation_on_github:clean
 	git checkout gh-pages
