@@ -17,8 +17,13 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+Extended Requests Library - a HTTP client library with OAuth2 support.
+"""
+
 VERSION = '0.1.7'
 
 
 def get_version():
+    """Returns the current version."""
     return VERSION
