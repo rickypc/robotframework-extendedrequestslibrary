@@ -14,15 +14,15 @@ Example
 '''''''
 
 +----------+---------------------+--------+-------------------------------+-----+--------+----------+----------+-----------------------------------+
-| Create Client OAuth2 Session   | client | https://localhost/oauth/token | key | secret | base_url=https://localhost/member                       |
+| Create Client OAuth2 Session   | client | https://localhost/oauth/token | key | secret | base_url=https://localhost/api                          |
 +----------+---------------------+--------+-------------------------------+-----+--------+----------+----------+-----------------------------------+
-| ${var} = | Post Request        | client | info                          | json=${"key": "value"}                                                 |
+| ${var} = | Post Request        | client | info                          | json={"key": "value"}                                                  |
 +----------+---------------------+--------+-------------------------------+-----+--------+----------+----------+-----------------------------------+
 | Log      | ${var}                                                                                                                                |
 +----------+---------------------+--------+-------------------------------+-----+--------+----------+----------+-----------------------------------+
-| Create Password OAuth2 Session | member | https://localhost/oauth/token | key | secret | username | password | base_url=https://localhost/member |
+| Create Password OAuth2 Session | member | https://localhost/oauth/token | key | secret | username | password | base_url=https://localhost/api    |
 +----------+---------------------+--------+-------------------------------+-----+--------+----------+----------+-----------------------------------+
-| ${var} = | Post Request        | member | info                          | json=${"key": "value"}                                                 |
+| ${var} = | Post Request        | member | info                          | json={"key": "value"}                                                  |
 +----------+---------------------+--------+-------------------------------+-----+--------+----------+----------+-----------------------------------+
 | Log      | ${var}                                                                                                                                |
 +----------+---------------------+--------+-------------------------------+-----+--------+----------+----------+-----------------------------------+
