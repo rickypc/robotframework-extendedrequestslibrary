@@ -38,16 +38,35 @@ __version__ = get_version()
 
 
 class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
-    """ExtendedRequestsLibrary is a HTTP client library for Robot Framework
-    with OAuth2 support that leverages other projects: requests project,
-    requests_oauthlib project, and RequestsLibrary project.
+    """ExtendedRequestsLibrary is an extended  HTTP client library
+    for Robot Framework with OAuth2 support that leverages other projects:
+    requests project, requests_oauthlib project, and RequestsLibrary project.
+
+    *Non-inherited Keywords*
+    | `Create Client OAuth2 Session`   |
+    | `Create Password OAuth2 Session` |
+    | `Get Session Object`             |
+
+    = Non-inherited Deprecated Keywords (Within 3 More Releases) =
+    | `Create OAuth2 Session With Client Credentials Grant`   |
+    | `Create OAuth2 Session With Password Credentials Grant` |
+
+    Examples:
+    | Create Client OAuth2 Session | client | https://localhost/oauth/token | key | secret | base_url=https://localhost/member |
+    | ${var} = | Post Request | client | info | json=${"key": "value"} |
+    | Log | ${var} |
+    | Create Password OAuth2 Session | member | https://localhost/oauth/token | key | secret | username | password | base_url=https://localhost/member |
+    | ${var} = | Post Request | member | info | json=${"key": "value"} |
+    | Log | ${var} |
+    | Delete All Sessions |
     """
 
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
     ROBOT_LIBRARY_VERSION = __version__
 
     def __init__(self):
-        """
+        """Extended Request Library class init
+
         Examples:
         | Library | ExtendedRequestsLibrary |
         """
@@ -57,9 +76,9 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
         self.timeout = 90
         self.verify = False
 
-    def create_oauth2_session_with_client_credentials_grant(
-            self, alias, token_url, tenant_id, tenant_secret, base_url=None, headers=None,
-            cookies=None, timeout=90, proxies=None, verify=False, **kwargs):
+    def create_client_oauth2_session(self, alias, token_url, tenant_id, tenant_secret,
+                                     base_url=None, headers=None, cookies=None, timeout=90,
+                                     proxies=None, verify=False, **kwargs):
         # pylint: disable=line-too-long
         """Create and return an OAuth2 session to a server with client credentials grant
         access token.
@@ -85,10 +104,10 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
         `verify` set to True if Requests should verify the SSL certificate
 
         Examples:
-        | ${var} = | Create OAuth2 Session With Client Credentials Grant | Google | https://www.google.com | id | secret |
+        | ${var} = | Create Client OAuth2 Session | My-Label | https://localhost/oauth/token | key | secret |
         """
         # pylint: disable=line-too-long
-        log_message = ('Creating OAuth2 Session With Client Credentials Grant using: '
+        log_message = ('Creating Client OAuth2 Session using: '
                        'alias=%s, token_url=%s, tenant_id=%s, tenant_secret=%s, base_url=%s, '
                        'headers=%s, cookies=%s, timeout=%s, proxies=%s, verify=%s')
         logger.debug(log_message % (alias, token_url, tenant_id, tenant_secret, base_url,
@@ -101,11 +120,28 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
         self._cache.register(session, alias=alias)
         return session
 
+    def create_oauth2_session_with_client_credentials_grant(
+            self, alias, token_url, tenant_id, tenant_secret, base_url=None, headers=None,
+            cookies=None, timeout=90, proxies=None, verify=False, **kwargs):
+        """*** Deprecated within 3 more releases - See `Create Client OAuth2 Session` ***"""
+        return self.create_client_oauth2_session(alias, token_url, tenant_id, tenant_secret,
+                                                 base_url, headers, cookies, timeout, proxies,
+                                                 verify, **kwargs)
+
     def create_oauth2_session_with_password_credentials_grant(
             self, alias, token_url, tenant_id, tenant_secret, username, password, base_url=None,
             headers=None, cookies=None, timeout=90, proxies=None, verify=False, **kwargs):
+        """*** Deprecated within 3 more releases - See `Create Password OAuth2 Session` ***"""
+        return self.create_password_oauth2_session(alias, token_url, tenant_id, tenant_secret,
+                                                   username, password, base_url, headers, cookies,
+                                                   timeout, proxies, verify, **kwargs)
+
+    def create_password_oauth2_session(self, alias, token_url, tenant_id, tenant_secret,
+                                       username, password, base_url=None, headers=None,
+                                       cookies=None, timeout=90, proxies=None, verify=False,
+                                       **kwargs):
         # pylint: disable=line-too-long
-        """Create and return an OAuth2 session to a server with client credentials grant
+        """Create and return an OAuth2 session to a server with password grant
         access token.
 
         `alias` is a Robot Framework alias to identify the OAuth2 session
@@ -133,10 +169,10 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
         `verify` set to True if Requests should verify the SSL certificate
 
         Examples:
-        | ${var} = | Create OAuth2 Session With Password Credentials Grant | Google | https://www.google.com | id | secret | username | password |
+        | ${var} = | Create Password OAuth2 Session | My-Label | https://localhost/oauth/token | key | secret | username | password |
         """
         # pylint: disable=line-too-long
-        log_message = ('Creating OAuth2 Session With Password Credentials Grant using: '
+        log_message = ('Creating Password OAuth2 Session using: '
                        'alias=%s, token_url=%s, tenant_id=%s, tenant_secret=%s, username=%s, '
                        'password=%s, base_url=%s, headers=%s, cookies=%s, timeout=%s, '
                        'proxies=%s, verify=%s')
