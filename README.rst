@@ -1,11 +1,12 @@
-Extended Requests library for Robot Framework
-=============================================
+Extended Requests HTTP client testing library for Robot Framework
+=================================================================
 
 Introduction
 ------------
 
-ExtendedRequestsLibrary is a HTTP client library for `Robot Framework`_ with OAuth2_ support
-that leverages the requests_ project, `requests-oauthlib`_ project, and RequestsLibrary_ project.
+ExtendedRequestsLibrary is an extended HTTP client library for `Robot Framework`_
+with OAuth2_ support that leverages the requests_ project,
+`requests-oauthlib`_ project, and RequestsLibrary_ project.
 
 More information about this library can be found in the `Keyword Documentation`_.
 
@@ -123,7 +124,7 @@ The `Keyword Documentation`_ can be found online, if you need to generate the ke
 
 .. code:: bash
 
-    make documentation
+    make doc
 
 License
 -------
