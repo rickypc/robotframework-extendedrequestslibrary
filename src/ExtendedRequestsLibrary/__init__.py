@@ -38,6 +38,7 @@ __version__ = get_version()
 
 
 class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
+    # pylint: disable=line-too-long
     """ExtendedRequestsLibrary is an extended  HTTP client library
     for Robot Framework with OAuth2 support that leverages other projects:
     requests project, requests_oauthlib project, and RequestsLibrary project.
@@ -60,6 +61,7 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
     | Log | ${var} |
     | Delete All Sessions |
     """
+    # pylint: disable=line-too-long
 
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
     ROBOT_LIBRARY_VERSION = __version__

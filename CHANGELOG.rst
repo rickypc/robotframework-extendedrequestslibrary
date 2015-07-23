@@ -1,0 +1,11 @@
+0.2.0 (2015.07.22)
+==================
+
+* Shorter API set
+* Update documentations
+* Follow flake8 and pylint suggestion
+
+0.1.7 (2015.06.28)
+==================
+
+* Initial library launch
