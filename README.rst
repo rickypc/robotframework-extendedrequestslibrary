@@ -129,6 +129,12 @@ doc/
 src/
     Python source code
 
+test/
+     Test files
+
+     utest/
+           Python unit test
+
 Usage
 -----
 
@@ -144,6 +150,13 @@ The `Keyword Documentation`_ can be found online, if you need to generate the ke
 .. code:: bash
 
     make doc
+
+Run Unit Tests, and Test Coverage Report
+----------------------------------------
+
+.. code:: bash
+
+    make test
 
 License
 -------

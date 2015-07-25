@@ -21,9 +21,8 @@
 Extended Requests Library - a HTTP client library with OAuth2 support.
 """
 
-VERSION = '0.3.0'
+from ExtendedRequestsLibrary.decorators.docstring import inherit_docs
 
-
-def get_version():
-    """Returns the current version."""
-    return VERSION
+__all__ = [
+    'inherit_docs'
+]

@@ -1,3 +1,12 @@
+0.3.0 (2015.07.25)
+==================
+
+* Bugfixes
+* Restructure the parameters
+* Add unit tests
+* Remove parent deprecated keywords
+* Update documentation
+
 0.2.0 (2015.07.22)
 ==================
 

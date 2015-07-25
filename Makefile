@@ -18,10 +18,10 @@ LIBRARY_NAME = ExtendedRequestsLibrary
 
 lc = $(subst A,a,$(subst B,b,$(subst C,c,$(subst D,d,$(subst E,e,$(subst F,f,$(subst G,g,$(subst H,h,$(subst I,i,$(subst J,j,$(subst K,k,$(subst L,l,$(subst M,m,$(subst N,n,$(subst O,o,$(subst P,p,$(subst Q,q,$(subst R,r,$(subst S,s,$(subst T,t,$(subst U,u,$(subst V,v,$(subst W,w,$(subst X,x,$(subst Y,y,$(subst Z,z,$1))))))))))))))))))))))))))
 
-.PHONY: help
+.PHONY: help test
 
 help:
-	@echo targets: clean, clean_dist, version, lint, doc, github_doc, testpypi, pypi
+	@echo targets: clean, clean_dist, version, lint, test, doc, github_doc, testpypi, pypi
 
 clean:
 	python setup.py clean --all
@@ -33,11 +33,15 @@ clean_dist:
 	rm -rf dist
 
 version:
-	grep "VERSION = '*'" src/$(LIBRARY_NAME)/version.py	
+	python -m robot.libdoc src/$(LIBRARY_NAME) version
 
 lint:clean
 	flake8 --max-complexity 10
 	pylint --rcfile=setup.cfg src/$(LIBRARY_NAME)/*.py
+
+test:clean
+	PYTHONPATH=./src: coverage run --source=src -m unittest discover test/utest
+	coverage report
 
 doc:clean
 	python -m robot.libdoc src/$(LIBRARY_NAME) doc/$(LIBRARY_NAME).html

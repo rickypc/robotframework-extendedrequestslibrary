@@ -21,9 +21,14 @@
 Extended Requests Library - a HTTP client library with OAuth2 support.
 """
 
-VERSION = '0.3.0'
 
-
-def get_version():
-    """Returns the current version."""
-    return VERSION
+def inherit_docs(cls):
+    """Inherits method docstring from parent method."""
+    for name, func in vars(cls).items():
+        if not func.__doc__:
+            for parent in cls.__bases__:
+                parent_func = getattr(parent, name, None)
+                if parent_func and getattr(parent_func, '__doc__', None):
+                    func.__doc__ = parent_func.__doc__
+                    break
+    return cls

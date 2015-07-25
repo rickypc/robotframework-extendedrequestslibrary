@@ -23,12 +23,13 @@ Extended Requests Library - a HTTP client library with OAuth2 support.
 
 import logging
 import requests
-import RequestsLibrary
+from ExtendedRequestsLibrary.decorators import inherit_docs
 from ExtendedRequestsLibrary.version import get_version
 from oauthlib.oauth2 import BackendApplicationClient
 from oauthlib.oauth2 import LegacyApplicationClient
 from requests.auth import HTTPBasicAuth
 from requests_oauthlib import OAuth2Session
+from RequestsLibrary import RequestsLibrary
 from robot.api import logger
 from urlparse import urlparse
 requests.packages.urllib3.disable_warnings()
@@ -37,7 +38,8 @@ logging.getLogger('requests').setLevel(logging.WARNING)
 __version__ = get_version()
 
 
-class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
+@inherit_docs
+class ExtendedRequestsLibrary(RequestsLibrary):
     # pylint: disable=line-too-long
     """ExtendedRequestsLibrary is an extended  HTTP client library
     for Robot Framework with OAuth2 support that leverages other projects:
@@ -48,9 +50,19 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
     | `Create Password OAuth2 Session` |
     | `Get Session Object`             |
 
-    = Non-inherited Deprecated Keywords (Within 3 More Releases) =
+    = (Within 2 More Releases) =
+    *Non-inherited Deprecated Keywords*
     | `Create OAuth2 Session With Client Credentials Grant`   |
     | `Create OAuth2 Session With Password Credentials Grant` |
+
+    *Inherited Deprecated Keywords*
+    | `Delete`  |
+    | `Get`     |
+    | `Head`    |
+    | `Options` |
+    | `Patch`   |
+    | `Post`    |
+    | `Put`     |
 
     Examples:
     | Create Client OAuth2 Session | client | https://localhost/oauth/token | key | secret | base_url=https://localhost/member |
@@ -67,20 +79,24 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
     ROBOT_LIBRARY_VERSION = __version__
 
     def __init__(self):
-        """Extended Request Library class init
+        """Extended Request Library class init.
 
         Examples:
         | Library | ExtendedRequestsLibrary |
         """
-        RequestsLibrary.RequestsLibrary.__init__(self)
+        RequestsLibrary.__init__(self)
         self._primers = {}
         self.cookies = None
         self.timeout = 90
         self.verify = False
 
-    def create_client_oauth2_session(self, alias, token_url, tenant_id, tenant_secret,
-                                     base_url=None, headers=None, cookies=None, timeout=90,
-                                     proxies=None, verify=False, **kwargs):
+    def __getattribute__(self, name):
+        """Returns requested attribute."""
+        if name in ('delete', 'get', 'head', 'options', 'patch', 'post', 'put'):
+            raise AttributeError("'%s' is deprecated." % name)
+        return super(ExtendedRequestsLibrary, self).__getattribute__(name)
+
+    def create_client_oauth2_session(self, *args, **kwargs):
         # pylint: disable=line-too-long
         """Create and return an OAuth2 session to a server with client credentials grant
         access token.
@@ -109,39 +125,40 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
         | ${var} = | Create Client OAuth2 Session | My-Label | https://localhost/oauth/token | key | secret |
         """
         # pylint: disable=line-too-long
+        kargs = dict(enumerate(args))
         log_message = ('Creating Client OAuth2 Session using: '
-                       'alias=%s, token_url=%s, tenant_id=%s, tenant_secret=%s, base_url=%s, '
-                       'headers=%s, cookies=%s, timeout=%s, proxies=%s, verify=%s')
-        logger.debug(log_message % (alias, token_url, tenant_id, tenant_secret, base_url,
-                                    headers, cookies, timeout, proxies, verify))
-        self._register_urls(base_url, token_url)
+                       'alias=%s, token_url=%s, tenant_id=%s, tenant_secret=%s')
+        kw_message = ', '.join(['%s=%s' % (key, value) for (key, value) in kwargs.items()])
+        if kw_message:
+            log_message += ', %s' % kw_message
+        logger.debug(log_message % args)
+        token_url = kargs.get(1, None)
+        self._register_urls(base_url=kwargs.get('base_url', None), token_url=token_url)
         session = OAuth2Session(client=BackendApplicationClient(''))
-        self._session_init(session, base_url, headers, proxies, verify, timeout, cookies)
-        session.fetch_token(token_url, auth=HTTPBasicAuth(tenant_id, tenant_secret),
-                            verify=verify, **kwargs)
-        self._cache.register(session, alias=alias)
+        self._session_init(session, **kwargs)
+        fetch_kwargs = kwargs.copy()
+        fetch_kwargs.pop('base_url', None)
+        fetch_kwargs.pop('cookies', None)
+        fetch_kwargs.pop('headers', None)
+        fetch_kwargs.pop('proxies', None)
+        fetch_kwargs.pop('timeout', None)
+        session.fetch_token(token_url, auth=HTTPBasicAuth(kargs.get(2, None), kargs.get(3, None)),
+                            **fetch_kwargs)
+        self._cache.register(session, alias=kargs.get(0, None))
         return session
 
-    def create_oauth2_session_with_client_credentials_grant(
-            self, alias, token_url, tenant_id, tenant_secret, base_url=None, headers=None,
-            cookies=None, timeout=90, proxies=None, verify=False, **kwargs):
-        """*** Deprecated within 3 more releases - See `Create Client OAuth2 Session` ***"""
-        return self.create_client_oauth2_session(alias, token_url, tenant_id, tenant_secret,
-                                                 base_url, headers, cookies, timeout, proxies,
-                                                 verify, **kwargs)
+    def create_ntlm_session(self, alias, url, auth, **kwargs):
+        super(ExtendedRequestsLibrary, self).create_ntlm_session(alias, url, auth, **kwargs)
 
-    def create_oauth2_session_with_password_credentials_grant(
-            self, alias, token_url, tenant_id, tenant_secret, username, password, base_url=None,
-            headers=None, cookies=None, timeout=90, proxies=None, verify=False, **kwargs):
-        """*** Deprecated within 3 more releases - See `Create Password OAuth2 Session` ***"""
-        return self.create_password_oauth2_session(alias, token_url, tenant_id, tenant_secret,
-                                                   username, password, base_url, headers, cookies,
-                                                   timeout, proxies, verify, **kwargs)
+    def create_oauth2_session_with_client_credentials_grant(self, *args, **kwargs):
+        """*** Deprecated within 2 more releases - See `Create Client OAuth2 Session` ***"""
+        return self.create_client_oauth2_session(*args, **kwargs)
 
-    def create_password_oauth2_session(self, alias, token_url, tenant_id, tenant_secret,
-                                       username, password, base_url=None, headers=None,
-                                       cookies=None, timeout=90, proxies=None, verify=False,
-                                       **kwargs):
+    def create_oauth2_session_with_password_credentials_grant(self, *args, **kwargs):
+        """*** Deprecated within 2 more releases - See `Create Password OAuth2 Session` ***"""
+        return self.create_password_oauth2_session(*args, **kwargs)
+
+    def create_password_oauth2_session(self, *args, **kwargs):
         # pylint: disable=line-too-long
         """Create and return an OAuth2 session to a server with password grant
         access token.
@@ -174,22 +191,34 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
         | ${var} = | Create Password OAuth2 Session | My-Label | https://localhost/oauth/token | key | secret | username | password |
         """
         # pylint: disable=line-too-long
+        kargs = dict(enumerate(args))
         log_message = ('Creating Password OAuth2 Session using: '
-                       'alias=%s, token_url=%s, tenant_id=%s, tenant_secret=%s, username=%s, '
-                       'password=%s, base_url=%s, headers=%s, cookies=%s, timeout=%s, '
-                       'proxies=%s, verify=%s')
-        logger.debug(log_message % (alias, token_url, tenant_id, tenant_secret, username,
-                                    password, base_url, headers, cookies, timeout, proxies,
-                                    verify))
-        self._register_urls(base_url, token_url)
+                       'alias=%s, token_url=%s, tenant_id=%s, tenant_secret=%s, '
+                       'username=%s, password=%s')
+        kw_message = ', '.join(['%s=%s' % (key, value) for (key, value) in kwargs.items()])
+        if kw_message:
+            log_message += ', %s' % kw_message
+        logger.debug(log_message % args)
+        token_url = kargs.get(1, None)
+        self._register_urls(base_url=kwargs.get('base_url', None), token_url=token_url)
         session = OAuth2Session(client=LegacyApplicationClient(''))
-        self._session_init(session, base_url, headers, proxies, verify, timeout, cookies)
-        session.fetch_token(token_url, auth=HTTPBasicAuth(tenant_id, tenant_secret),
-                            username=username, password=password, verify=verify, **kwargs)
-        self._cache.register(session, alias=alias)
+        self._session_init(session, **kwargs)
+        fetch_kwargs = kwargs.copy()
+        fetch_kwargs.pop('base_url', None)
+        fetch_kwargs.pop('cookies', None)
+        fetch_kwargs.pop('headers', None)
+        fetch_kwargs.pop('proxies', None)
+        fetch_kwargs.pop('timeout', None)
+        session.fetch_token(token_url, auth=HTTPBasicAuth(kargs.get(2, None), kargs.get(3, None)),
+                            username=kargs.get(4, None), password=kargs.get(5, None),
+                            **fetch_kwargs)
+        self._cache.register(session, alias=kargs.get(0, None))
         return session
 
-    def delete_request(self, alias, uri, data=(), headers=None, allow_redirects=None, **kwargs):
+    def create_session(self, alias, url, **kwargs):
+        super(ExtendedRequestsLibrary, self).create_session(alias, url, **kwargs)
+
+    def delete_request(self, alias, uri, **kwargs):
         """Send a DELETE request on the session object found in the cache using the given `alias`
 
         `alias` that will be used to identify the Session object in the cache
@@ -203,13 +232,16 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
 
         `allow_redirects` a flag to allow connection redirects
         """
+        allow_redirects = bool(kwargs.pop('allow_redirects', None))
+        data = self._utf8_urlencode(kwargs.pop('data', None))
+        headers = kwargs.pop('headers', None)
         session = self._cache.switch(alias)
-        response = session.delete(self._get_url(session, uri), data=self._utf8_urlencode(data),
-                                  headers=headers, cookies=self.cookies, timeout=self.timeout,
-                                  allow_redirects=bool(allow_redirects), **kwargs)
+        response = session.delete(self._get_url(session, uri), allow_redirects=allow_redirects,
+                                  cookies=self.cookies, data=data, headers=headers,
+                                  timeout=self.timeout, **kwargs)
         return self._finalize_response(session, response, 'DELETE')
 
-    def get_request(self, alias, uri, headers=None, params=None, allow_redirects=None, **kwargs):
+    def get_request(self, alias, uri, **kwargs):
         """Send a GET request on the session object found in the cache using the given `alias`
 
         `alias` that will be used to identify the Session object in the cache
@@ -222,11 +254,13 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
 
         `allow_redirects` a flag to allow connection redirects
         """
+        allow_redirects = bool(kwargs.pop('allow_redirects', None))
+        headers = kwargs.pop('headers', None)
+        params = self._utf8_urlencode(kwargs.pop('params', None))
         session = self._cache.switch(alias)
-        response = session.get(self._get_url(session, uri), headers=headers,
-                               params=self._utf8_urlencode(params), cookies=self.cookies,
-                               timeout=self.timeout, allow_redirects=bool(allow_redirects),
-                               **kwargs)
+        response = session.get(self._get_url(session, uri), allow_redirects=allow_redirects,
+                               cookies=self.cookies, headers=headers, params=params,
+                               timeout=self.timeout, **kwargs)
         return self._finalize_response(session, response, 'GET')
 
     def get_session_object(self, alias):
@@ -234,10 +268,11 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
 
         `alias` that will be used to identify the Session object in the cache
         """
-        logger.debug(vars(self._cache.switch(alias)))
-        return self._cache.switch(alias)
+        response = self._cache.switch(alias)
+        logger.debug(vars(response))
+        return response
 
-    def head_request(self, alias, uri, headers=None, allow_redirects=None, **kwargs):
+    def head_request(self, alias, uri, **kwargs):
         """Send a HEAD request on the session object found in the cache using the given `alias`
 
         `alias` that will be used to identify the Session object in the cache
@@ -248,13 +283,15 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
 
         `allow_redirects` a flag to allow connection redirects
         """
+        allow_redirects = bool(kwargs.pop('allow_redirects', None))
+        headers = kwargs.pop('headers', None)
         session = self._cache.switch(alias)
-        response = session.head(self._get_url(session, uri), headers=headers,
-                                cookies=self.cookies, timeout=self.timeout,
-                                allow_redirects=bool(allow_redirects), **kwargs)
+        response = session.head(self._get_url(session, uri), allow_redirects=allow_redirects,
+                                cookies=self.cookies, headers=headers, timeout=self.timeout,
+                                **kwargs)
         return self._finalize_response(session, response, 'HEAD')
 
-    def options_request(self, alias, uri, headers=None, allow_redirects=None, **kwargs):
+    def options_request(self, alias, uri, **kwargs):
         """Send a OPTIONS request on the session object found in the cache using the given `alias`
 
         `alias` that will be used to identify the Session object in the cache
@@ -265,14 +302,15 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
 
         `allow_redirects` a flag to allow connection redirects
         """
+        allow_redirects = bool(kwargs.pop('allow_redirects', None))
+        headers = kwargs.pop('headers', None)
         session = self._cache.switch(alias)
-        response = session.options(self._get_url(session, uri), headers=headers,
-                                   cookies=self.cookies, timeout=self.timeout,
-                                   allow_redirects=bool(allow_redirects), **kwargs)
+        response = session.options(self._get_url(session, uri), allow_redirects=allow_redirects,
+                                   cookies=self.cookies, headers=headers, timeout=self.timeout,
+                                   **kwargs)
         return self._finalize_response(session, response, 'OPTIONS')
 
-    def patch_request(self, alias, uri, data=None, headers=None, files=None,
-                      allow_redirects=None, **kwargs):
+    def patch_request(self, alias, uri, **kwargs):
         """Send a PATCH request on the session object found in the cache using the given `alias`
 
         `alias` that will be used to identify the Session object in the cache
@@ -288,15 +326,17 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
 
         `allow_redirects` a flag to allow connection redirects
         """
+        allow_redirects = bool(kwargs.pop('allow_redirects', None))
+        data = self._utf8_urlencode(kwargs.pop('data', None))
+        files = kwargs.pop('files', None)
+        headers = kwargs.pop('headers', None)
         session = self._cache.switch(alias)
-        response = session.patch(self._get_url(session, uri), data=self._utf8_urlencode(data),
-                                 headers=headers, files=files, cookies=self.cookies,
-                                 timeout=self.timeout, allow_redirects=bool(allow_redirects),
-                                 **kwargs)
+        response = session.patch(self._get_url(session, uri), allow_redirects=allow_redirects,
+                                 cookies=self.cookies, data=data, files=files, headers=headers,
+                                 timeout=self.timeout, **kwargs)
         return self._finalize_response(session, response, 'PATCH')
 
-    def post_request(self, alias, uri, data=None, headers=None, files=None,
-                     allow_redirects=None, **kwargs):
+    def post_request(self, alias, uri, **kwargs):
         """Send a POST request on the session object found in the cache using the given `alias`
 
         `alias` that will be used to identify the Session object in the cache
@@ -312,14 +352,17 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
 
         `allow_redirects` a flag to allow connection redirects
         """
+        allow_redirects = bool(kwargs.pop('allow_redirects', None))
+        data = self._utf8_urlencode(kwargs.pop('data', None))
+        files = kwargs.pop('files', None)
+        headers = kwargs.pop('headers', None)
         session = self._cache.switch(alias)
-        response = session.post(self._get_url(session, uri), data=self._utf8_urlencode(data),
-                                headers=headers, files=files, cookies=self.cookies,
-                                timeout=self.timeout, allow_redirects=bool(allow_redirects),
-                                **kwargs)
+        response = session.post(self._get_url(session, uri), allow_redirects=allow_redirects,
+                                cookies=self.cookies, data=data, files=files, headers=headers,
+                                timeout=self.timeout, **kwargs)
         return self._finalize_response(session, response, 'POST')
 
-    def put_request(self, alias, uri, data=None, headers=None, allow_redirects=None, **kwargs):
+    def put_request(self, alias, uri, **kwargs):
         """Send a PUT request on the session object found in the cache using the given `alias`
 
         `alias` that will be used to identify the Session object in the cache
@@ -333,16 +376,20 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
 
         `allow_redirects` a flag to allow connection redirects
         """
+        allow_redirects = bool(kwargs.pop('allow_redirects', None))
+        data = self._utf8_urlencode(kwargs.pop('data', None))
+        headers = kwargs.pop('headers', None)
         session = self._cache.switch(alias)
-        response = session.put(self._get_url(session, uri), data=self._utf8_urlencode(data),
-                               headers=headers, cookies=self.cookies, timeout=self.timeout,
-                               allow_redirects=bool(allow_redirects), **kwargs)
+        response = session.put(self._get_url(session, uri), allow_redirects=allow_redirects,
+                               cookies=self.cookies, data=data, headers=headers,
+                               timeout=self.timeout, **kwargs)
         return self._finalize_response(session, response, 'PUT')
 
-    def _finalize_response(self, session, response, method):
+    @staticmethod
+    def _finalize_response(session, response, method):
         """Store last response object, logging, and return the response"""
         session.last_resp = response
-        self.builtin.log("%s response: %s" % (method, response.content), 'DEBUG')
+        logger.debug("%s response: %s" % (method, response.content))
         return response
 
     def _register_url(self, url=None):
@@ -357,15 +404,19 @@ class ExtendedRequestsLibrary(RequestsLibrary.RequestsLibrary):
         self._register_url(base_url)
         self._register_url(token_url)
 
-    def _session_init(self, session=None, base_url=None, headers=None, proxies=None, verify=False,
-                      timeout=90, cookies=None):
+    def _session_init(self, session=None, **kwargs):
         """Initialize session"""
+        if session is None:
+            return
         # can't use hooks :(
-        session.url = base_url
-        session.headers.update(headers)
-        session.proxies = proxies if proxies else session.proxies
-        session.verify = self.builtin.convert_to_boolean(verify)
+        headers = kwargs.get('headers', None)
+        proxies = kwargs.get('proxies', None)
+        session.url = kwargs.get('base_url', None)
+        if headers is not None:
+            session.headers.update(headers)
+        session.proxies = proxies if proxies is not None else session.proxies
+        session.verify = self.builtin.convert_to_boolean(kwargs.get('verify', None))
         # cant pass these into the Session anymore
-        self.cookies = cookies
-        self.timeout = timeout
-        self.verify = verify
+        self.cookies = kwargs.get('cookies', None)
+        self.timeout = kwargs.get('timeout', 90)
+        self.verify = kwargs.get('verify', False)
