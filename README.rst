@@ -1,6 +1,30 @@
 Extended Requests HTTP client testing library for Robot Framework
 =================================================================
 
+.. image:: https://img.shields.io/travis/rickypc/robotframework-extendedrequestslibrary.svg
+       :target: https://travis-ci.org/rickypc/robotframework-extendedrequestslibrary
+
+.. image:: https://img.shields.io/codecov/c/github/rickypc/robotframework-extendedrequestslibrary.svg
+       :target: https://codecov.io/github/rickypc/robotframework-extendedrequestslibrary
+
+.. image:: https://img.shields.io/codacy/25e0956bfabc47428dcb19582e8d7a0a.svg
+       :target: https://www.codacy.com/app/rickypc/robotframework-extendedrequestslibrary
+
+.. image:: https://img.shields.io/pypi/v/robotframework-extendedrequestslibrary.svg
+       :target: https://pypi.python.org/pypi/robotframework-extendedrequestslibrary
+
+.. image:: https://img.shields.io/pypi/status/robotframework-extendedrequestslibrary.svg
+       :target: https://pypi.python.org/pypi/robotframework-extendedrequestslibrary
+
+.. image:: https://img.shields.io/pypi/pyversions/robotframework-extendedrequestslibrary.svg
+       :target: https://www.python.org/downloads/
+
+.. image:: https://img.shields.io/pypi/dm/robotframework-extendedrequestslibrary.svg
+       :target: https://pypi.python.org/pypi/robotframework-extendedrequestslibrary
+
+.. image:: https://img.shields.io/pypi/l/robotframework-extendedrequestslibrary.svg
+       :target: https://www.gnu.org/licenses/agpl-3.0.en.html
+
 Introduction
 ------------
 
