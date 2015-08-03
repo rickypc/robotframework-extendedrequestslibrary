@@ -1,29 +1,7 @@
 Extended Requests HTTP client testing library for Robot Framework
 =================================================================
 
-.. image:: https://img.shields.io/travis/rickypc/robotframework-extendedrequestslibrary.svg
-       :target: https://travis-ci.org/rickypc/robotframework-extendedrequestslibrary
-
-.. image:: https://img.shields.io/codecov/c/github/rickypc/robotframework-extendedrequestslibrary.svg
-       :target: https://codecov.io/github/rickypc/robotframework-extendedrequestslibrary
-
-.. image:: https://img.shields.io/codacy/25e0956bfabc47428dcb19582e8d7a0a.svg
-       :target: https://www.codacy.com/app/rickypc/robotframework-extendedrequestslibrary
-
-.. image:: https://img.shields.io/pypi/v/robotframework-extendedrequestslibrary.svg
-       :target: https://pypi.python.org/pypi/robotframework-extendedrequestslibrary
-
-.. image:: https://img.shields.io/pypi/status/robotframework-extendedrequestslibrary.svg
-       :target: https://pypi.python.org/pypi/robotframework-extendedrequestslibrary
-
-.. image:: https://img.shields.io/pypi/pyversions/robotframework-extendedrequestslibrary.svg
-       :target: https://www.python.org/downloads/
-
-.. image:: https://img.shields.io/pypi/dm/robotframework-extendedrequestslibrary.svg
-       :target: https://pypi.python.org/pypi/robotframework-extendedrequestslibrary
-
-.. image:: https://img.shields.io/pypi/l/robotframework-extendedrequestslibrary.svg
-       :target: https://www.gnu.org/licenses/agpl-3.0.en.html
+|Build| |Coverage| |Grade| |Docs| |Version| |Status| |Python| |Download| |License|
 
 Introduction
 ------------
@@ -37,21 +15,21 @@ More information about this library can be found in the `Keyword Documentation`_
 Example
 '''''''
 
-+----------+---------------------+--------+-------------------------------+-----+--------+----------+----------+-----------------------------------+
++----------+---------------------+--------+-------------------------------+-----+--------+---------------------------------------------------------+
 | Create Client OAuth2 Session   | client | https://localhost/oauth/token | key | secret | base_url=https://localhost/api                          |
-+----------+---------------------+--------+-------------------------------+-----+--------+----------+----------+-----------------------------------+
++----------+---------------------+--------+-------------------------------+-----+--------+---------------------------------------------------------+
 | ${var} = | Post Request        | client | info                          | json={"key": "value"}                                                  |
-+----------+---------------------+--------+-------------------------------+-----+--------+----------+----------+-----------------------------------+
++----------+---------------------+--------+-------------------------------+------------------------------------------------------------------------+
 | Log      | ${var}                                                                                                                                |
 +----------+---------------------+--------+-------------------------------+-----+--------+----------+----------+-----------------------------------+
 | Create Password OAuth2 Session | member | https://localhost/oauth/token | key | secret | username | password | base_url=https://localhost/api    |
 +----------+---------------------+--------+-------------------------------+-----+--------+----------+----------+-----------------------------------+
 | ${var} = | Post Request        | member | info                          | json={"key": "value"}                                                  |
-+----------+---------------------+--------+-------------------------------+-----+--------+----------+----------+-----------------------------------+
++----------+---------------------+--------+-------------------------------+------------------------------------------------------------------------+
 | Log      | ${var}                                                                                                                                |
-+----------+---------------------+--------+-------------------------------+-----+--------+----------+----------+-----------------------------------+
++----------+---------------------------------------------------------------------------------------------------------------------------------------+
 | Delete All Sessions                                                                                                                              |
-+----------+---------------------+--------+-------------------------------+-----+--------+----------+----------+-----------------------------------+
++----------+---------------------------------------------------------------------------------------------------------------------------------------+
 
 Installation
 ------------
@@ -166,6 +144,9 @@ To write tests with Robot Framework and ExtendedRequestsLibrary,
 ExtendedRequestsLibrary must be imported into your Robot test suite.
 See `Robot Framework User Guide`_ for more information.
 
+More information about Robot Framework standard libraries and built-in tools
+can be found in the `Robot Framework Documentation`_.
+
 Building Keyword Documentation
 ------------------------------
 
@@ -178,6 +159,8 @@ The `Keyword Documentation`_ can be found online, if you need to generate the ke
 Run Unit Tests, and Test Coverage Report
 ----------------------------------------
 
+Test the testing library, talking about dogfooding, let's run:
+
 .. code:: bash
 
     make test
@@ -189,9 +172,10 @@ Copyright (c) 2015 Richard Huang.
 
 This library is free software, licensed under: `GNU Affero General Public License (AGPL-3.0)`_.
 
-Documentation and other similar content are provided under `Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License <http://creativecommons.org/licenses/by-nc-sa/4.0/>`_.
+Documentation and other similar content are provided under `Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License`_.
 
 .. _CNTML: http://cntlm.sourceforge.net
+.. _Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License: http://creativecommons.org/licenses/by-nc-sa/4.0/
 .. _GNU Affero General Public License (AGPL-3.0): http://www.gnu.org/licenses/agpl-3.0.en.html
 .. _Keyword Documentation: https://rickypc.github.io/robotframework-extendedrequestslibrary/doc/ExtendedRequestsLibrary.html
 .. _OAuth2: http://oauth.net/2/
@@ -200,5 +184,33 @@ Documentation and other similar content are provided under `Creative Commons Att
 .. _requests-oauthlib: https://requests-oauthlib.readthedocs.org/en/latest/
 .. _RequestsLibrary: https://bulkan.github.io/robotframework-requests/
 .. _Robot Framework: http://robotframework.org
+.. _Robot Framework Documentation: http://robotframework.org/robotframework/
 .. _Robot Framework installed: http://code.google.com/p/robotframework/wiki/Installation
 .. _Robot Framework User Guide: http://code.google.com/p/robotframework/wiki/UserGuide
+.. |Build| image:: https://img.shields.io/travis/rickypc/robotframework-extendedrequestslibrary.svg
+    :target: https://travis-ci.org/rickypc/robotframework-extendedrequestslibrary
+    :alt: Build Status
+.. |Coverage| image:: https://img.shields.io/codecov/c/github/rickypc/robotframework-extendedrequestslibrary.svg
+    :target: https://codecov.io/github/rickypc/robotframework-extendedrequestslibrary
+    :alt: Code Coverage
+.. |Grade| image:: https://img.shields.io/codacy/25e0956bfabc47428dcb19582e8d7a0a.svg
+    :target: https://www.codacy.com/app/rickypc/robotframework-extendedrequestslibrary
+    :alt: Code Grade
+.. |Docs| image:: https://img.shields.io/badge/docs-latest-brightgreen.svg
+    :target: https://rickypc.github.io/robotframework-extendedrequestslibrary/doc/ExtendedRequestsLibrary.html
+    :alt: Keyword Documentation
+.. |Version| image:: https://img.shields.io/pypi/v/robotframework-extendedrequestslibrary.svg
+    :target: https://pypi.python.org/pypi/robotframework-extendedrequestslibrary
+    :alt: Package Version
+.. |Status| image:: https://img.shields.io/pypi/status/robotframework-extendedrequestslibrary.svg
+    :target: https://pypi.python.org/pypi/robotframework-extendedrequestslibrary
+    :alt: Development Status
+.. |Python| image:: https://img.shields.io/pypi/pyversions/robotframework-extendedrequestslibrary.svg
+    :target: https://www.python.org/downloads/
+    :alt: Python Version
+.. |Download| image:: https://img.shields.io/pypi/dm/robotframework-extendedrequestslibrary.svg
+    :target: https://pypi.python.org/pypi/robotframework-extendedrequestslibrary
+    :alt: Monthly Download
+.. |License| image:: https://img.shields.io/pypi/l/robotframework-extendedrequestslibrary.svg
+    :target: https://www.gnu.org/licenses/agpl-3.0.en.html
+    :alt: License

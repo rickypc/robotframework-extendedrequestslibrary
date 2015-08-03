@@ -31,9 +31,13 @@ from requests.auth import HTTPBasicAuth
 from requests_oauthlib import OAuth2Session
 from RequestsLibrary import RequestsLibrary
 from robot.api import logger
-from urlparse import urlparse
 requests.packages.urllib3.disable_warnings()
 logging.getLogger('requests').setLevel(logging.WARNING)
+
+try:
+    from urllib.parse import urlparse  # pylint: disable=no-name-in-module
+except ImportError:
+    from urlparse import urlparse  # pylint: disable=no-name-in-module
 
 __version__ = get_version()
 
@@ -50,7 +54,7 @@ class ExtendedRequestsLibrary(RequestsLibrary):
     | `Create Password OAuth2 Session` |
     | `Get Session Object`             |
 
-    = (Within 2 More Releases) =
+    = (Next release, these two will be REMOVED) =
     *Non-inherited Deprecated Keywords*
     | `Create OAuth2 Session With Client Credentials Grant`   |
     | `Create OAuth2 Session With Password Credentials Grant` |
@@ -128,7 +132,7 @@ class ExtendedRequestsLibrary(RequestsLibrary):
         kargs = dict(enumerate(args))
         log_message = ('Creating Client OAuth2 Session using: '
                        'alias=%s, token_url=%s, tenant_id=%s, tenant_secret=%s')
-        kw_message = ', '.join(['%s=%s' % (key, value) for (key, value) in kwargs.items()])
+        kw_message = ', '.join(['%s=%s' % (key, value) for (key, value) in list(kwargs.items())])
         if kw_message:
             log_message += ', %s' % kw_message
         logger.debug(log_message % args)
@@ -151,11 +155,11 @@ class ExtendedRequestsLibrary(RequestsLibrary):
         super(ExtendedRequestsLibrary, self).create_ntlm_session(alias, url, auth, **kwargs)
 
     def create_oauth2_session_with_client_credentials_grant(self, *args, **kwargs):
-        """*** Deprecated within 2 more releases - See `Create Client OAuth2 Session` ***"""
+        """*** Deprecated within 1 more release - See `Create Client OAuth2 Session` ***"""
         return self.create_client_oauth2_session(*args, **kwargs)
 
     def create_oauth2_session_with_password_credentials_grant(self, *args, **kwargs):
-        """*** Deprecated within 2 more releases - See `Create Password OAuth2 Session` ***"""
+        """*** Deprecated within 1 more release - See `Create Password OAuth2 Session` ***"""
         return self.create_password_oauth2_session(*args, **kwargs)
 
     def create_password_oauth2_session(self, *args, **kwargs):
@@ -195,7 +199,7 @@ class ExtendedRequestsLibrary(RequestsLibrary):
         log_message = ('Creating Password OAuth2 Session using: '
                        'alias=%s, token_url=%s, tenant_id=%s, tenant_secret=%s, '
                        'username=%s, password=%s')
-        kw_message = ', '.join(['%s=%s' % (key, value) for (key, value) in kwargs.items()])
+        kw_message = ', '.join(['%s=%s' % (key, value) for (key, value) in list(kwargs.items())])
         if kw_message:
             log_message += ', %s' % kw_message
         logger.debug(log_message % args)
