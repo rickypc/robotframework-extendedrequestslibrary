@@ -24,6 +24,7 @@ Extended Requests Library - a HTTP client library with OAuth2 support.
 import logging
 import requests
 from ExtendedRequestsLibrary.decorators import inherit_docs
+from ExtendedRequestsLibrary.keywords import Utility
 from ExtendedRequestsLibrary.version import get_version
 from oauthlib.oauth2 import BackendApplicationClient
 from oauthlib.oauth2 import LegacyApplicationClient
@@ -43,7 +44,7 @@ __version__ = get_version()
 
 
 @inherit_docs
-class ExtendedRequestsLibrary(RequestsLibrary):
+class ExtendedRequestsLibrary(RequestsLibrary, Utility):
     # pylint: disable=line-too-long
     """ExtendedRequestsLibrary is an extended  HTTP client library
     for Robot Framework with OAuth2 support that leverages other projects:
@@ -52,12 +53,9 @@ class ExtendedRequestsLibrary(RequestsLibrary):
     *Non-inherited Keywords*
     | `Create Client OAuth2 Session`   |
     | `Create Password OAuth2 Session` |
+    | `Get JSON File`                  |
     | `Get Session Object`             |
-
-    = (Next release, these two will be REMOVED) =
-    *Non-inherited Deprecated Keywords*
-    | `Create OAuth2 Session With Client Credentials Grant`   |
-    | `Create OAuth2 Session With Password Credentials Grant` |
+    | `JSON Loads`                     |
 
     *Inherited Deprecated Keywords*
     | `Delete`  |
@@ -67,6 +65,7 @@ class ExtendedRequestsLibrary(RequestsLibrary):
     | `Patch`   |
     | `Post`    |
     | `Put`     |
+    | `To Json` |
 
     Examples:
     | Create Client OAuth2 Session | client | https://localhost/oauth/token | key | secret | base_url=https://localhost/member |
@@ -82,13 +81,15 @@ class ExtendedRequestsLibrary(RequestsLibrary):
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
     ROBOT_LIBRARY_VERSION = __version__
 
+    # pylint: disable=super-init-not-called
     def __init__(self):
         """Extended Request Library class init.
 
         Examples:
         | Library | ExtendedRequestsLibrary |
         """
-        RequestsLibrary.__init__(self)
+        for base in ExtendedRequestsLibrary.__bases__:
+            base.__init__(self)
         self._primers = {}
         self.cookies = None
         self.timeout = 90
@@ -96,7 +97,7 @@ class ExtendedRequestsLibrary(RequestsLibrary):
 
     def __getattribute__(self, name):
         """Returns requested attribute."""
-        if name in ('delete', 'get', 'head', 'options', 'patch', 'post', 'put'):
+        if name in ('delete', 'get', 'head', 'options', 'patch', 'post', 'put', 'to_json'):
             raise AttributeError("'%s' is deprecated." % name)
         return super(ExtendedRequestsLibrary, self).__getattribute__(name)
 
@@ -126,41 +127,14 @@ class ExtendedRequestsLibrary(RequestsLibrary):
         `verify` set to True if Requests should verify the SSL certificate
 
         Examples:
+        | ${var} = | Create Client OAuth2 Session | My-Label | https://localhost/oauth/token |
         | ${var} = | Create Client OAuth2 Session | My-Label | https://localhost/oauth/token | key | secret |
         """
         # pylint: disable=line-too-long
-        kargs = dict(enumerate(args))
-        log_message = ('Creating Client OAuth2 Session using: '
-                       'alias=%s, token_url=%s, tenant_id=%s, tenant_secret=%s')
-        kw_message = ', '.join(['%s=%s' % (key, value) for (key, value) in list(kwargs.items())])
-        if kw_message:
-            log_message += ', %s' % kw_message
-        logger.debug(log_message % args)
-        token_url = kargs.get(1, None)
-        self._register_urls(base_url=kwargs.get('base_url', None), token_url=token_url)
-        session = OAuth2Session(client=BackendApplicationClient(''))
-        self._session_init(session, **kwargs)
-        fetch_kwargs = kwargs.copy()
-        fetch_kwargs.pop('base_url', None)
-        fetch_kwargs.pop('cookies', None)
-        fetch_kwargs.pop('headers', None)
-        fetch_kwargs.pop('proxies', None)
-        fetch_kwargs.pop('timeout', None)
-        session.fetch_token(token_url, auth=HTTPBasicAuth(kargs.get(2, None), kargs.get(3, None)),
-                            **fetch_kwargs)
-        self._cache.register(session, alias=kargs.get(0, None))
-        return session
+        return self._create_oauth2_session(BackendApplicationClient(''), *args, **kwargs)
 
     def create_ntlm_session(self, alias, url, auth, **kwargs):
         super(ExtendedRequestsLibrary, self).create_ntlm_session(alias, url, auth, **kwargs)
-
-    def create_oauth2_session_with_client_credentials_grant(self, *args, **kwargs):
-        """*** Deprecated within 1 more release - See `Create Client OAuth2 Session` ***"""
-        return self.create_client_oauth2_session(*args, **kwargs)
-
-    def create_oauth2_session_with_password_credentials_grant(self, *args, **kwargs):
-        """*** Deprecated within 1 more release - See `Create Password OAuth2 Session` ***"""
-        return self.create_password_oauth2_session(*args, **kwargs)
 
     def create_password_oauth2_session(self, *args, **kwargs):
         # pylint: disable=line-too-long
@@ -192,32 +166,13 @@ class ExtendedRequestsLibrary(RequestsLibrary):
         `verify` set to True if Requests should verify the SSL certificate
 
         Examples:
+        | ${var} = | Create Password OAuth2 Session | My-Label | https://localhost/oauth/token |
+        | ${var} = | Create Password OAuth2 Session | My-Label | https://localhost/oauth/token | key | secret |
+        | ${var} = | Create Password OAuth2 Session | My-Label | https://localhost/oauth/token | username=username | password=password |
         | ${var} = | Create Password OAuth2 Session | My-Label | https://localhost/oauth/token | key | secret | username | password |
         """
         # pylint: disable=line-too-long
-        kargs = dict(enumerate(args))
-        log_message = ('Creating Password OAuth2 Session using: '
-                       'alias=%s, token_url=%s, tenant_id=%s, tenant_secret=%s, '
-                       'username=%s, password=%s')
-        kw_message = ', '.join(['%s=%s' % (key, value) for (key, value) in list(kwargs.items())])
-        if kw_message:
-            log_message += ', %s' % kw_message
-        logger.debug(log_message % args)
-        token_url = kargs.get(1, None)
-        self._register_urls(base_url=kwargs.get('base_url', None), token_url=token_url)
-        session = OAuth2Session(client=LegacyApplicationClient(''))
-        self._session_init(session, **kwargs)
-        fetch_kwargs = kwargs.copy()
-        fetch_kwargs.pop('base_url', None)
-        fetch_kwargs.pop('cookies', None)
-        fetch_kwargs.pop('headers', None)
-        fetch_kwargs.pop('proxies', None)
-        fetch_kwargs.pop('timeout', None)
-        session.fetch_token(token_url, auth=HTTPBasicAuth(kargs.get(2, None), kargs.get(3, None)),
-                            username=kargs.get(4, None), password=kargs.get(5, None),
-                            **fetch_kwargs)
-        self._cache.register(session, alias=kargs.get(0, None))
-        return session
+        return self._create_oauth2_session(LegacyApplicationClient(''), *args, **kwargs)
 
     def create_session(self, alias, url, **kwargs):
         super(ExtendedRequestsLibrary, self).create_session(alias, url, **kwargs)
@@ -388,6 +343,45 @@ class ExtendedRequestsLibrary(RequestsLibrary):
                                cookies=self.cookies, data=data, headers=headers,
                                timeout=self.timeout, **kwargs)
         return self._finalize_response(session, response, 'PUT')
+
+    def _create_oauth2_session(self, client, *args, **kwargs):
+        """Create and return an OAuth2 session to a server."""
+        fetch_kwargs = kwargs.copy()
+        kargs = dict(enumerate(args))
+        argv = {
+            'alias': kargs.get(0, None),
+            'password': kargs.get(5, kwargs.get('password', None)),
+            'tenant_id': kargs.get(2, None),
+            'tenant_secret': kargs.get(3, None),
+            'token_url': kargs.get(1, None),
+            'username': kargs.get(4, kwargs.get('username', None))
+        }
+        kw_message = ', '.join(['%s=%s' % (key, value) for (key, value) in list(kwargs.items())])
+        log_message = ('Creating OAuth2 Session using: alias=%s, token_url=%s' %
+                       (argv.get('alias'), argv.get('token_url')))
+        if argv.get('tenant_id') is not None and argv.get('tenant_secret') is not None:
+            fetch_kwargs['auth'] = HTTPBasicAuth(argv.get('tenant_id'), argv.get('tenant_secret'))
+            log_message += (', tenant_id=%s, tenant_secret=%s' %
+                            (argv.get('tenant_id'), argv.get('tenant_secret')))
+        if argv.get('username') is not None and argv.get('password') is not None:
+            fetch_kwargs['username'] = argv.get('username')
+            fetch_kwargs['password'] = argv.get('password')
+            log_message += (', username=%s, password=%s' %
+                            (argv.get('username'), argv.get('password')))
+        if kw_message:
+            log_message += ', %s' % kw_message
+        logger.debug(log_message)
+        self._register_urls(base_url=kwargs.get('base_url', None), token_url=argv.get('token_url'))
+        session = OAuth2Session(client=client)
+        self._session_init(session, **kwargs)
+        fetch_kwargs.pop('base_url', None)
+        fetch_kwargs.pop('cookies', None)
+        fetch_kwargs.pop('headers', None)
+        fetch_kwargs.pop('proxies', None)
+        fetch_kwargs.pop('timeout', None)
+        session.fetch_token(argv.get('token_url'), **fetch_kwargs)
+        self._cache.register(session, alias=argv.get('alias'))
+        return session
 
     @staticmethod
     def _finalize_response(session, response, method):

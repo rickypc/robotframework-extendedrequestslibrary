@@ -1,0 +1,6 @@
+[{
+    "bad": ${false},
+    "good": ${true},
+    "key": 5.5,
+    "key2": "value2"
+}]

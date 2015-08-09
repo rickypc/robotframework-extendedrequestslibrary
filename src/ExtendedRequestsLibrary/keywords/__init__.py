@@ -21,9 +21,8 @@
 Extended Requests Library - a HTTP client library with OAuth2 support.
 """
 
-VERSION = '0.5.0'
+from ExtendedRequestsLibrary.keywords.utility import Utility
 
-
-def get_version():
-    """Returns the current version."""
-    return VERSION
+__all__ = [
+    'Utility'
+]

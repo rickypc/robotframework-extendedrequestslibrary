@@ -1,3 +1,12 @@
+0.5.0 (2015.08.08)
+==================
+
+* Add `Get JSON File` and `JSON Loads` keywords
+* Add validation and optional arguments
+* Adjust documentation
+* Remove deprecated keywords
+* Add unit tests
+
 0.4.0 (2015.08.03)
 ==================
 

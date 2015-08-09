@@ -24,6 +24,8 @@ Extended Requests Library - a HTTP client library with OAuth2 support.
 from sys import path
 path.append('src')
 from ExtendedRequestsLibrary import ExtendedRequestsLibrary
+from ExtendedRequestsLibrary.keywords import Utility
+from RequestsLibrary import RequestsLibrary
 import mock
 import unittest
 
@@ -50,6 +52,11 @@ class ExtendedRequestsLibraryTests(unittest.TestCase):
         self.username = 'MY-USERNAME'
         self.value = 'MY-VALUE'
         self.verify = False
+
+    def test_should_inherit_keywords(self):
+        """Extended Requests library instance should inherit keyword instances."""
+        self.assertIsInstance(self.library, RequestsLibrary)
+        self.assertIsInstance(self.library, Utility)
 
     def method_request_workflow(self, method, mock_oauth2, **kwargs):
         library = self.library
