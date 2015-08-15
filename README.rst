@@ -165,6 +165,17 @@ Test the testing library, talking about dogfooding, let's run:
 
     make test
 
+Contributing
+------------
+
+If you would like to contribute code to Extended Requests Library project you can do so through GitHub by forking the           repository and sending a pull request.
+
+When submitting code, please make every effort to follow existing conventions and style in order to keep the code as readable as possible. Please also include appropriate test cases.
+
+Before your code can be accepted into the project you must also sign the `Extended Requests Library CLA`_ (Individual Contributor License Agreement).
+
+That's it! Thank you for your contribution!
+
 License
 -------
 
@@ -176,6 +187,7 @@ Documentation and other similar content are provided under `Creative Commons Att
 
 .. _CNTML: http://cntlm.sourceforge.net
 .. _Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License: http://creativecommons.org/licenses/by-nc-sa/4.0/
+.. _Extended Requests Library CLA: https://goo.gl/forms/hLzGj1hyWf
 .. _GNU Affero General Public License (AGPL-3.0): http://www.gnu.org/licenses/agpl-3.0.en.html
 .. _Keyword Documentation: https://rickypc.github.io/robotframework-extendedrequestslibrary/doc/ExtendedRequestsLibrary.html
 .. _OAuth2: http://oauth.net/2/
