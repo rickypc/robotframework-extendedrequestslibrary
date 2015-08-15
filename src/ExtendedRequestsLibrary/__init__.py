@@ -75,6 +75,14 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
     | ${var} = | Post Request | member | info | json=${"key": "value"} |
     | Log | ${var} |
     | Delete All Sessions |
+
+    Example for File Upload:
+    | Create Client OAuth2 Session | client | https://localhost/oauth/token | key | secret | base_url=https://localhost/member |
+    | &{files}  |  Create Dictionary  |  file=${CURDIR}${/}data${/}myfile.zip |
+    | ${var} = | Post Request | client | info | files=&{files} |
+    | Log | ${var} |
+
+
     """
     # pylint: disable=line-too-long
 
@@ -106,25 +114,25 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
         """Create and return an OAuth2 session to a server with client credentials grant
         access token.
 
-        `alias` is a Robot Framework alias to identify the OAuth2 session
+        ``alias`` is a Robot Framework alias to identify the OAuth2 session
 
-        `token_url` is url of the OAuth2 token server
+        ``token_url`` is url of the OAuth2 token server
 
-        `tenant_id` is the client id obtained during registration with OAuth2 provider
+        ``tenant_id`` is the client id obtained during registration with OAuth2 provider
 
-        `tenant_secret` is the client secret obtained during registration with OAuth2 provider
+        ``tenant_secret`` is the client secret obtained during registration with OAuth2 provider
 
-        `base_url` is base url of the server
+        ``base_url`` is base url of the server
 
-        `headers` is a Dictionary of default headers
+        ``headers`` is a Dictionary of default headers
 
-        `cookies` is a Dictionary of default cookies
+        ``cookies`` is a Dictionary of default cookies
 
-        `timeout` is the connection timeout in seconds
+        ``timeout`` is the connection timeout in seconds
 
-        `proxies` is a Dictionary that contains proxy urls for HTTP and HTTPS communication
+        ``proxies`` is a Dictionary that contains proxy urls for HTTP and HTTPS communication
 
-        `verify` set to True if Requests should verify the SSL certificate
+        ``verify`` set to True if Requests should verify the SSL certificate
 
         Examples:
         | ${var} = | Create Client OAuth2 Session | My-Label | https://localhost/oauth/token |
@@ -141,29 +149,29 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
         """Create and return an OAuth2 session to a server with password grant
         access token.
 
-        `alias` is a Robot Framework alias to identify the OAuth2 session
+        ``alias`` is a Robot Framework alias to identify the OAuth2 session
 
-        `token_url` is url of the OAuth2 token server
+        ``token_url`` is url of the OAuth2 token server
 
-        `tenant_id` is the client id obtained during registration with OAuth2 provider
+        ``tenant_id`` is the client id obtained during registration with OAuth2 provider
 
-        `tenant_secret` is the client secret obtained during registration with OAuth2 provider
+        ``tenant_secret`` is the client secret obtained during registration with OAuth2 provider
 
-        `username` is the resource owner username
+        ``username`` is the resource owner username
 
-        `password` is the resource owner password
+        ``password`` is the resource owner password
 
-        `base_url` is base url of the server
+        ``base_url`` is base url of the server
 
-        `headers` is a Dictionary of default headers
+        ``headers`` is a Dictionary of default headers
 
-        `cookies` is a Dictionary of default cookies
+        ``cookies`` is a Dictionary of default cookies
 
-        `timeout` is the connection timeout in seconds
+        ``timeout`` is the connection timeout in seconds
 
-        `proxies` is a Dictionary that contains proxy urls for HTTP and HTTPS communication
+        ``proxies`` is a Dictionary that contains proxy urls for HTTP and HTTPS communication
 
-        `verify` set to True if Requests should verify the SSL certificate
+        ``verify`` set to True if Requests should verify the SSL certificate
 
         Examples:
         | ${var} = | Create Password OAuth2 Session | My-Label | https://localhost/oauth/token |
@@ -178,18 +186,18 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
         super(ExtendedRequestsLibrary, self).create_session(alias, url, **kwargs)
 
     def delete_request(self, alias, uri, **kwargs):
-        """Send a DELETE request on the session object found in the cache using the given `alias`
+        """Send a DELETE request on the session object found in the cache using the given ``alias``
 
-        `alias` that will be used to identify the Session object in the cache
+        ``alias`` that will be used to identify the Session object in the cache
 
-        `uri` to send the DELETE request to
+        ``uri`` to send the DELETE request to
 
-        `data` a dictionary of key-value pairs that will be urlencoded and
+        ``data`` a dictionary of key-value pairs that will be urlencoded and
         sent as DELETE data or binary data that is sent as the raw body content
 
-        `headers` a dictionary of headers to use with the request
+        ``headers`` a dictionary of headers to use with the request
 
-        `allow_redirects` a flag to allow connection redirects
+        ``allow_redirects`` a flag to allow connection redirects
         """
         allow_redirects = bool(kwargs.pop('allow_redirects', None))
         data = self._utf8_urlencode(kwargs.pop('data', None))
@@ -201,17 +209,17 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
         return self._finalize_response(session, response, 'DELETE')
 
     def get_request(self, alias, uri, **kwargs):
-        """Send a GET request on the session object found in the cache using the given `alias`
+        """Send a GET request on the session object found in the cache using the given ``alias``
 
-        `alias` that will be used to identify the Session object in the cache
+        ``alias`` that will be used to identify the Session object in the cache
 
-        `uri` to send the GET request to
+        ``uri`` to send the GET request to
 
-        `headers` a dictionary of headers to use with the request
+        ``headers`` a dictionary of headers to use with the request
 
-        `params` a dictionary of key-value pairs that will be urlencoded and sent as GET data
+        ``params`` a dictionary of key-value pairs that will be urlencoded and sent as GET data
 
-        `allow_redirects` a flag to allow connection redirects
+        ``allow_redirects`` a flag to allow connection redirects
         """
         allow_redirects = bool(kwargs.pop('allow_redirects', None))
         headers = kwargs.pop('headers', None)
@@ -223,24 +231,24 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
         return self._finalize_response(session, response, 'GET')
 
     def get_session_object(self, alias):
-        """Returns the session object found in the cache using the given `alias`
+        """Returns the session object found in the cache using the given ``alias``
 
-        `alias` that will be used to identify the Session object in the cache
+        ``alias`` that will be used to identify the Session object in the cache
         """
         response = self._cache.switch(alias)
         logger.debug(vars(response))
         return response
 
     def head_request(self, alias, uri, **kwargs):
-        """Send a HEAD request on the session object found in the cache using the given `alias`
+        """Send a HEAD request on the session object found in the cache using the given ``alias``
 
-        `alias` that will be used to identify the Session object in the cache
+        ``alias`` that will be used to identify the Session object in the cache
 
-        `uri` to send the HEAD request to
+        ``uri`` to send the HEAD request to
 
-        `headers` a dictionary of headers to use with the request
+        ``headers`` a dictionary of headers to use with the request
 
-        `allow_redirects` a flag to allow connection redirects
+        ``allow_redirects`` a flag to allow connection redirects
         """
         allow_redirects = bool(kwargs.pop('allow_redirects', None))
         headers = kwargs.pop('headers', None)
@@ -251,15 +259,15 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
         return self._finalize_response(session, response, 'HEAD')
 
     def options_request(self, alias, uri, **kwargs):
-        """Send a OPTIONS request on the session object found in the cache using the given `alias`
+        """Send a OPTIONS request on the session object found in the cache using the given ``alias``
 
-        `alias` that will be used to identify the Session object in the cache
+        ``alias`` that will be used to identify the Session object in the cache
 
-        `uri` to send the OPTIONS request to
+        ``uri`` to send the OPTIONS request to
 
-        `headers` a dictionary of headers to use with the request
+        ``headers`` a dictionary of headers to use with the request
 
-        `allow_redirects` a flag to allow connection redirects
+        ``allow_redirects`` a flag to allow connection redirects
         """
         allow_redirects = bool(kwargs.pop('allow_redirects', None))
         headers = kwargs.pop('headers', None)
@@ -270,20 +278,20 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
         return self._finalize_response(session, response, 'OPTIONS')
 
     def patch_request(self, alias, uri, **kwargs):
-        """Send a PATCH request on the session object found in the cache using the given `alias`
+        """Send a PATCH request on the session object found in the cache using the given ``alias``
 
-        `alias` that will be used to identify the Session object in the cache
+        ``alias`` that will be used to identify the Session object in the cache
 
-        `uri` to send the PATCH request to
+        ``uri`` to send the PATCH request to
 
-        `data` a dictionary of key-value pairs that will be urlencoded and
+        ``data`` a dictionary of key-value pairs that will be urlencoded and
         sent as PATCH data or binary data that is sent as the raw body content
 
-        `headers` a dictionary of headers to use with the request
+        ``headers`` a dictionary of headers to use with the request
 
-        `files` a dictionary of file names containing file data to PATCH to the server
+        ``files`` a dictionary of file names containing file data to PATCH to the server
 
-        `allow_redirects` a flag to allow connection redirects
+        ``allow_redirects`` a flag to allow connection redirects
         """
         allow_redirects = bool(kwargs.pop('allow_redirects', None))
         data = self._utf8_urlencode(kwargs.pop('data', None))
@@ -296,24 +304,33 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
         return self._finalize_response(session, response, 'PATCH')
 
     def post_request(self, alias, uri, **kwargs):
-        """Send a POST request on the session object found in the cache using the given `alias`
+        """Send a POST request on the session object found in the cache using the given ``alias``
 
-        `alias` that will be used to identify the Session object in the cache
+        ``alias`` that will be used to identify the Session object in the cache
 
-        `uri` to send the POST request to
+        ``uri`` to send the POST request to
 
-        `data` a dictionary of key-value pairs that will be urlencoded and
+        ``data`` a dictionary of key-value pairs that will be urlencoded and
         sent as POST data or binary data that is sent as the raw body content
 
-        `headers` a dictionary of headers to use with the request
+        ``headers`` a dictionary of headers to use with the request
 
-        `files` a dictionary of file names containing file data to POST to the server
+        ``files`` a dictionary of file key and file names containing file data to POST to the server
 
-        `allow_redirects` a flag to allow connection redirects
+        Also ``files`` can contain multiple key, value pairs in order to post more then one file.
+
+        ``allow_redirects`` a flag to allow connection redirects
         """
         allow_redirects = bool(kwargs.pop('allow_redirects', None))
         data = self._utf8_urlencode(kwargs.pop('data', None))
-        files = kwargs.pop('files', None)
+        file_arg = kwargs.pop('files', None)
+        if file_arg:
+            files = {}
+            for key, value in file_arg.items():
+                files.update({key : open(value, 'rb')})
+        else:
+            files = file_arg
+
         headers = kwargs.pop('headers', None)
         session = self._cache.switch(alias)
         response = session.post(self._get_url(session, uri), allow_redirects=allow_redirects,
@@ -322,18 +339,18 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
         return self._finalize_response(session, response, 'POST')
 
     def put_request(self, alias, uri, **kwargs):
-        """Send a PUT request on the session object found in the cache using the given `alias`
+        """Send a PUT request on the session object found in the cache using the given ``alias``
 
-        `alias` that will be used to identify the Session object in the cache
+        ``alias`` that will be used to identify the Session object in the cache
 
-        `uri` to send the PUT request to
+        ``uri`` to send the PUT request to
 
-        `data` a dictionary of key-value pairs that will be urlencoded and
+        ``data`` a dictionary of key-value pairs that will be urlencoded and
         sent as PUT data or binary data that is sent as the raw body content
 
-        `headers` a dictionary of headers to use with the request
+        ``headers`` a dictionary of headers to use with the request
 
-        `allow_redirects` a flag to allow connection redirects
+        ``allow_redirects`` a flag to allow connection redirects
         """
         allow_redirects = bool(kwargs.pop('allow_redirects', None))
         data = self._utf8_urlencode(kwargs.pop('data', None))
