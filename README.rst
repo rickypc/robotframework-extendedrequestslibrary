@@ -64,9 +64,9 @@ a specific version or upgrade only the requests project used by the library:
 
 .. code:: bash
 
-    pip install robotframework-extendedrequestslibrary==0.1.7
+    pip install robotframework-extendedrequestslibrary==x.x.x
     pip install --upgrade requests
-    pip install requests==2.7.0
+    pip install requests==x.x.x
 
 Proxy configuration
 '''''''''''''''''''
@@ -113,7 +113,7 @@ and its dependencies yourself.
 
 .. code:: bash
 
-    gpg --verify robotframework-extendedrequestslibrary-0.1.7.tar.gz.asc robotframework-extendedrequestslibrary-0.1.7.tar.gz
+    gpg --verify robotframework-extendedrequestslibrary-x.x.x.tar.gz.asc robotframework-extendedrequestslibrary-x.x.x.tar.gz
 
 - Extract each source distribution to a temporary location.
 
