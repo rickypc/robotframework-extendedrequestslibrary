@@ -78,11 +78,9 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
 
     Example for File Upload:
     | Create Client OAuth2 Session | client | https://localhost/oauth/token | key | secret | base_url=https://localhost/member |
-    | &{files}  |  Create Dictionary  |  file=${CURDIR}${/}data${/}myfile.zip |
+    | &{files} | Create Dictionary | file=${CURDIR}${/}data${/}myfile.zip |
     | ${var} = | Post Request | client | info | files=&{files} |
     | Log | ${var} |
-
-
     """
     # pylint: disable=line-too-long
 
@@ -317,20 +315,16 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
 
         ``files`` a dictionary of file key and file names containing file data to POST to the server
 
-        Also ``files`` can contain multiple key, value pairs in order to post more then one file.
+        ``files`` can also contain multiple key-value pairs in order to post more than one file.
 
         ``allow_redirects`` a flag to allow connection redirects
         """
         allow_redirects = bool(kwargs.pop('allow_redirects', None))
         data = self._utf8_urlencode(kwargs.pop('data', None))
-        file_arg = kwargs.pop('files', None)
-        if file_arg:
-            files = {}
-            for key, value in file_arg.items():
-                files.update({key : open(value, 'rb')})
-        else:
-            files = file_arg
-
+        files = kwargs.pop('files', None)
+        if files is not None:
+            for key, value in files.items():
+                files[key] = open(value, 'rb')
         headers = kwargs.pop('headers', None)
         session = self._cache.switch(alias)
         response = session.post(self._get_url(session, uri), allow_redirects=allow_redirects,
