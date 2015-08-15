@@ -300,6 +300,9 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
         allow_redirects = bool(kwargs.pop('allow_redirects', None))
         data = self._utf8_urlencode(kwargs.pop('data', None))
         files = kwargs.pop('files', None)
+        if files is not None:
+            for key, value in files.items():
+                files[key] = open(value, 'rb')
         headers = kwargs.pop('headers', None)
         session = self._cache.switch(alias)
         response = session.patch(self._get_url(session, uri), allow_redirects=allow_redirects,

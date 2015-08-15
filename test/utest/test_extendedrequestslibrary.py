@@ -211,6 +211,11 @@ class ExtendedRequestsLibraryTests(unittest.TestCase):
         self.method_request_workflow('patch', mock_oauth2, data=None, files=None)
 
     @mock.patch('ExtendedRequestsLibrary.OAuth2Session')
+    def test_patch_request_workflow_with_files(self, mock_oauth2):
+        self.method_request_workflow('patch', mock_oauth2, data=None,
+                                     files={'file.txt': '%s/file.txt' % self.cwd})
+
+    @mock.patch('ExtendedRequestsLibrary.OAuth2Session')
     def test_post_request_workflow(self, mock_oauth2):
         self.method_request_workflow('post', mock_oauth2, data=None, files=None)
 
