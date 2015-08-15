@@ -25,6 +25,7 @@ from sys import path
 path.append('src')
 from ExtendedRequestsLibrary import ExtendedRequestsLibrary
 from ExtendedRequestsLibrary.keywords import Utility
+from os.path import abspath, dirname
 from RequestsLibrary import RequestsLibrary
 import mock
 import unittest
@@ -39,6 +40,7 @@ class ExtendedRequestsLibraryTests(unittest.TestCase):
         self.allow_redirects = None
         self.base_url = 'https://localhost/api'
         self.cookies = None
+        self.cwd = abspath(dirname(__file__))
         self.headers = None
         self.library = ExtendedRequestsLibrary()
         self.library._cache = mock.Mock()
@@ -59,21 +61,28 @@ class ExtendedRequestsLibraryTests(unittest.TestCase):
         self.assertIsInstance(self.library, Utility)
 
     def method_request_workflow(self, method, mock_oauth2, **kwargs):
+        has_files = 'files' in kwargs
+        files = kwargs.pop('files', None)
         library = self.library
         oauth2_instance = mock_oauth2()
         library._cache.switch.return_value = oauth2_instance
         library._finalize_response = mock.Mock()
-        getattr(library, '%s_request' % method)(self.alias, self.uri)
         url = library._get_url(oauth2_instance, self.uri)
+        lib_kwargs = {}
         request_kwargs = kwargs.copy()
         request_kwargs['allow_redirects'] = bool(self.allow_redirects)
         request_kwargs['cookies'] = self.cookies
         if method == 'delete' or method == 'put':
             request_kwargs['data'] = None
+        if has_files:
+            if files is not None:
+                lib_kwargs['files'] = files
+            request_kwargs['files'] = files
         request_kwargs['headers'] = self.headers
         if method == 'get':
             request_kwargs['params'] = None
         request_kwargs['timeout'] = self.timeout
+        getattr(library, '%s_request' % method)(self.alias, self.uri, **lib_kwargs)
         getattr(oauth2_instance, method).assert_called_with(url, **request_kwargs)
         response = getattr(oauth2_instance, method)()
         library._finalize_response.assert_called_with(oauth2_instance, response, method.upper())
@@ -204,6 +213,11 @@ class ExtendedRequestsLibraryTests(unittest.TestCase):
     @mock.patch('ExtendedRequestsLibrary.OAuth2Session')
     def test_post_request_workflow(self, mock_oauth2):
         self.method_request_workflow('post', mock_oauth2, data=None, files=None)
+
+    @mock.patch('ExtendedRequestsLibrary.OAuth2Session')
+    def test_post_request_workflow_with_files(self, mock_oauth2):
+        self.method_request_workflow('post', mock_oauth2, data=None,
+                                     files={'file.txt': '%s/file.txt' % self.cwd})
 
     @mock.patch('ExtendedRequestsLibrary.OAuth2Session')
     def test_put_request_workflow(self, mock_oauth2):
