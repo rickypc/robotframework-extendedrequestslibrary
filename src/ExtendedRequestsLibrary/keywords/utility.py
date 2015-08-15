@@ -56,7 +56,7 @@ class Utility(object):
         # pylint: disable=line-too-long
         """Returns JSON from JSON string with object restoration support.
 
-        :param str `text`: JSON string.
+        :param str ``text``: JSON string.
 
         *Supported object restoration*
         | `py/dict`                    |

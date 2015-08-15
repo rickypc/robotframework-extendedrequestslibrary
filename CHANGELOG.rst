@@ -1,3 +1,10 @@
+0.5.1 (2015.08.15)
+==================
+
+* Add file upload support for `Patch Request` and `Post Request`.
+* Add unit test
+* Adjust documentation
+
 0.5.0 (2015.08.08)
 ==================
 

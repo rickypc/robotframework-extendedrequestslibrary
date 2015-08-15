@@ -77,8 +77,8 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
     | Delete All Sessions |
 
     Example for File Upload:
+    | &{files} = | Create Dictionary | file1=/path/to/a_file.ext | file2=/path/to/another_file.ext | # Collections library |
     | Create Client OAuth2 Session | client | https://localhost/oauth/token | key | secret | base_url=https://localhost/member |
-    | &{files} | Create Dictionary | file=${CURDIR}${/}data${/}myfile.zip |
     | ${var} = | Post Request | client | info | files=&{files} |
     | Log | ${var} |
     """
@@ -276,6 +276,7 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
         return self._finalize_response(session, response, 'OPTIONS')
 
     def patch_request(self, alias, uri, **kwargs):
+        # pylint: disable=line-too-long
         """Send a PATCH request on the session object found in the cache using the given ``alias``
 
         ``alias`` that will be used to identify the Session object in the cache
@@ -287,10 +288,15 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
 
         ``headers`` a dictionary of headers to use with the request
 
-        ``files`` a dictionary of file names containing file data to PATCH to the server
+        ``files`` a dictionary of multiple file names and file paths data to PATCH to the server.
 
         ``allow_redirects`` a flag to allow connection redirects
+
+        Examples:
+        | &{files} = | Create Dictionary | file1=/path/to/a_file.ext | file2=/path/to/another_file.ext | # Collections library |
+        | ${var} = | Patch Request | label | uri | files=&{files} |
         """
+        # pylint: disable=line-too-long
         allow_redirects = bool(kwargs.pop('allow_redirects', None))
         data = self._utf8_urlencode(kwargs.pop('data', None))
         files = kwargs.pop('files', None)
@@ -302,6 +308,7 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
         return self._finalize_response(session, response, 'PATCH')
 
     def post_request(self, alias, uri, **kwargs):
+        # pylint: disable=line-too-long
         """Send a POST request on the session object found in the cache using the given ``alias``
 
         ``alias`` that will be used to identify the Session object in the cache
@@ -313,12 +320,15 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
 
         ``headers`` a dictionary of headers to use with the request
 
-        ``files`` a dictionary of file key and file names containing file data to POST to the server
-
-        ``files`` can also contain multiple key-value pairs in order to post more than one file.
+        ``files`` a dictionary of multiple file names and file paths data to POST to the server.
 
         ``allow_redirects`` a flag to allow connection redirects
+
+        Examples:
+        | &{files} = | Create Dictionary | file1=/path/to/a_file.ext | file2=/path/to/another_file.ext | # Collections library |
+        | ${var} = | Post Request | label | uri | files=&{files} |
         """
+        # pylint: disable=line-too-long
         allow_redirects = bool(kwargs.pop('allow_redirects', None))
         data = self._utf8_urlencode(kwargs.pop('data', None))
         files = kwargs.pop('files', None)
