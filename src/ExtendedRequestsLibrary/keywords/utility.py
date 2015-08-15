@@ -41,7 +41,7 @@ class Utility(object):
     def get_json_file(self, path):
         """Returns JSON from JSON file with all variables replaced.
 
-        :param str `path`: The path to JSON file.
+        :param str ``path``: The path to JSON file.
 
         Examples:
         | ${var} = | Get JSON File | request.json |

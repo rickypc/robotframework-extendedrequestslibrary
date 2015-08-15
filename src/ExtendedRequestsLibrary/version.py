@@ -21,7 +21,7 @@
 Extended Requests Library - a HTTP client library with OAuth2 support.
 """
 
-VERSION = '0.5.0'
+VERSION = '0.5.1'
 
 
 def get_version():
