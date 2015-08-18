@@ -39,12 +39,23 @@ class Utility(object):
         self._os = OperatingSystem()
 
     def get_json_file(self, path):
-        """Returns JSON from JSON file with all variables replaced.
+        """Returns JSON object from JSON file with all variables replaced.
 
-        :param str ``path``: The path to JSON file.
+        Arguments:
+        - ``path``: The path to JSON file.
 
         Examples:
-        | ${var} = | Get JSON File | request.json |
+
+        _request.json_
+        | [{
+        |     "bad": ${false},
+        |     "good": ${true},
+        |     "key": 5.5,
+        |     "key2": "value2"
+        | }]
+
+        | @{var} = | Get JSON File | request.json |
+        | # [{'key2': 'value2', 'bad': False, 'good': True, 'key': Decimal('5.5')}] |
         """
         content = self._os.get_binary_file(path)
         content = self._builtin.replace_variables(content)
@@ -54,11 +65,12 @@ class Utility(object):
 
     def json_loads(self, text):
         # pylint: disable=line-too-long
-        """Returns JSON from JSON string with object restoration support.
+        """Returns JSON object from JSON string with object restoration support.
 
-        :param str ``text``: JSON string.
+        Arguments:
+        - ``text``: JSON string.
 
-        *Supported object restoration*
+        Supported object restoration:
         | `py/dict`                    |
         | `py/tuple`                   |
         | `py/set`                     |

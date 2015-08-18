@@ -36,12 +36,12 @@ class ExtendedRequestsLibraryTests(unittest.TestCase):
 
     def setUp(self):
         """Instantiate the extended requests library class."""
-        self.alias = 'MY-LABEL'
         self.allow_redirects = None
         self.base_url = 'https://localhost/api'
         self.cookies = None
         self.cwd = abspath(dirname(__file__))
         self.headers = None
+        self.label = 'MY-LABEL'
         self.library = ExtendedRequestsLibrary()
         self.library._cache = mock.Mock()
         self.password = 'MY-PASSWORD'
@@ -82,13 +82,13 @@ class ExtendedRequestsLibraryTests(unittest.TestCase):
         if method == 'get':
             request_kwargs['params'] = None
         request_kwargs['timeout'] = self.timeout
-        getattr(library, '%s_request' % method)(self.alias, self.uri, **lib_kwargs)
+        getattr(library, '%s_request' % method)(self.label, self.uri, **lib_kwargs)
         getattr(oauth2_instance, method).assert_called_with(url, **request_kwargs)
         response = getattr(oauth2_instance, method)()
         library._finalize_response.assert_called_with(oauth2_instance, response, method.upper())
 
     def oauth2_workflow(self, grant, mock_logger, mock_oauth2, mock_client, mock_auth):
-        args = [self.alias, self.token_url, self.tenant_id, self.tenant_secret]
+        args = [self.label, self.token_url, self.tenant_id, self.tenant_secret]
         fetch_token_args = {'auth': mock_auth(), 'verify': self.verify}
         kwargs = dict(base_url=self.base_url, cookies=self.cookies, headers=self.headers,
                       proxies=self.proxies, timeout=self.timeout, verify=self.verify)
@@ -113,7 +113,7 @@ class ExtendedRequestsLibraryTests(unittest.TestCase):
                                                  verify=self.verify)
         mock_auth.assert_called_with(self.tenant_id, self.tenant_secret)
         oauth2_instance.fetch_token.assert_called_with(self.token_url, **fetch_token_args)
-        library._cache.register.assert_called_with(oauth2_instance, alias=self.alias)
+        library._cache.register.assert_called_with(oauth2_instance, alias=self.label)
 
     def test_should_have_default_values(self):
         """Extended Requests library instance should have default values set."""
@@ -122,6 +122,16 @@ class ExtendedRequestsLibraryTests(unittest.TestCase):
         self.assertIsNone(self.library.cookies)
         self.assertEqual(self.library.timeout, self.timeout)
         self.assertFalse(self.library.verify)
+
+    def test_delete_should_remove_requested_session(self):
+        """Delete session should successfully remove requested existing session."""
+        library = ExtendedRequestsLibrary()
+        library.create_session(self.label, self.base_url)
+        self.assertIsNotNone(library.get_session_object(self.label))
+        library.delete_session(self.label)
+        with self.assertRaises(RuntimeError) as context:
+            library._cache.switch(self.label)
+        self.assertTrue("Non-existing index or alias '%s'." % self.label in context.exception)
 
     def test_delete_keyword_raise_exception(self):
         with self.assertRaises(AttributeError) as context:
@@ -162,16 +172,16 @@ class ExtendedRequestsLibraryTests(unittest.TestCase):
         library = self.library
         session = mock.Mock()
         library._cache.switch.return_value = session
-        library.create_session(self.alias, self.base_url)
-        self.assertEqual(library.get_session_object(self.alias), session)
+        library.create_session(self.label, self.base_url)
+        self.assertEqual(library.get_session_object(self.label), session)
 
     def test_create_ntlm_session_workflow(self):
         library = self.library
         session = mock.Mock()
         library._cache.switch.return_value = session
-        library.create_ntlm_session(self.alias, self.base_url,
+        library.create_ntlm_session(self.label, self.base_url,
                                     auth=('MY-DOMAIN', self.username, self.password))
-        self.assertEqual(library.get_session_object(self.alias), session)
+        self.assertEqual(library.get_session_object(self.label), session)
 
     @mock.patch('ExtendedRequestsLibrary.HTTPBasicAuth')
     @mock.patch('ExtendedRequestsLibrary.BackendApplicationClient')
@@ -194,8 +204,8 @@ class ExtendedRequestsLibraryTests(unittest.TestCase):
         library = self.library
         oauth2_instance = mock_oauth2()
         library._cache.switch.return_value = oauth2_instance
-        library.get_session_object(self.alias)
-        library._cache.switch.assert_called_with(self.alias)
+        library.get_session_object(self.label)
+        library._cache.switch.assert_called_with(self.label)
         mock_logger.debug.assert_called_with(vars(library._cache.switch()))
 
     @mock.patch('ExtendedRequestsLibrary.OAuth2Session')

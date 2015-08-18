@@ -1,3 +1,11 @@
+0.5.3 (2015.08.17)
+==================
+
+* Adjust documentation
+* Replace `alias` with `label`
+* Add `Delete Session` keyword
+* Add and adjust unit test
+
 0.5.2 (2015.08.15)
 ==================
 

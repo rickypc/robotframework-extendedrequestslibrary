@@ -23,7 +23,6 @@ Extended Requests Library - a HTTP client library with OAuth2 support.
 
 import logging
 import requests
-from ExtendedRequestsLibrary.decorators import inherit_docs
 from ExtendedRequestsLibrary.keywords import Utility
 from ExtendedRequestsLibrary.version import get_version
 from oauthlib.oauth2 import BackendApplicationClient
@@ -43,21 +42,38 @@ except ImportError:
 __version__ = get_version()
 
 
-@inherit_docs
 class ExtendedRequestsLibrary(RequestsLibrary, Utility):
     # pylint: disable=line-too-long
-    """ExtendedRequestsLibrary is an extended  HTTP client library
-    for Robot Framework with OAuth2 support that leverages other projects:
-    requests project, requests_oauthlib project, and RequestsLibrary project.
+    """ExtendedRequestsLibrary is an extended HTTP client library
+    for [http://robotframework.org|Robot Framework] with [http://oauth.net/2/|OAuth2] support
+    that leverages other projects:
+    - [http://docs.python-requests.org/en/latest/|requests] project
+    - [https://requests-oauthlib.readthedocs.org/en/latest/|requests_oauthlib] project
+    - [https://bulkan.github.io/robotframework-requests/|RequestsLibrary] project
 
-    *Non-inherited Keywords*
+    Examples:
+    | `Create Client OAuth2 Session` | client-label | https://token | key | secret | base_url=https://service |
+    | ${var} = | `Post Request` | client-label | /endpoint | json=${"key": "value"} |
+    | Log | ${var} |
+    | `Create Password OAuth2 Session` | member-label | https://token | key | secret | usn | pwd | base_url=https://service |
+    | ${var} = | `Post Request` | member-label | /endpoint | json=${"key": "value"} |
+    | Log | ${var} |
+    | `Delete All Sessions` |
+
+    Example for File Upload:
+    | &{files} = | Create Dictionary | file1=/path/to/a_file.ext | file2=/path/to/another_file.ext | # Collections library |
+    | `Create Client OAuth2 Session` | label | https://token | key | secret | base_url=https://service |
+    | ${var} = | `Post Request` | label | /endpoint | files=&{files} |
+    | Log | ${var} |
+
+    Non-inherited Keywords:
     | `Create Client OAuth2 Session`   |
     | `Create Password OAuth2 Session` |
     | `Get JSON File`                  |
     | `Get Session Object`             |
     | `JSON Loads`                     |
 
-    *Inherited Deprecated Keywords*
+    Inherited Deprecated Keywords:
     | `Delete`  |
     | `Get`     |
     | `Head`    |
@@ -66,21 +82,6 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
     | `Post`    |
     | `Put`     |
     | `To Json` |
-
-    Examples:
-    | Create Client OAuth2 Session | client | https://localhost/oauth/token | key | secret | base_url=https://localhost/member |
-    | ${var} = | Post Request | client | info | json=${"key": "value"} |
-    | Log | ${var} |
-    | Create Password OAuth2 Session | member | https://localhost/oauth/token | key | secret | username | password | base_url=https://localhost/member |
-    | ${var} = | Post Request | member | info | json=${"key": "value"} |
-    | Log | ${var} |
-    | Delete All Sessions |
-
-    Example for File Upload:
-    | &{files} = | Create Dictionary | file1=/path/to/a_file.ext | file2=/path/to/another_file.ext | # Collections library |
-    | Create Client OAuth2 Session | client | https://localhost/oauth/token | key | secret | base_url=https://localhost/member |
-    | ${var} = | Post Request | client | info | files=&{files} |
-    | Log | ${var} |
     """
     # pylint: disable=line-too-long
 
@@ -108,261 +109,313 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
         return super(ExtendedRequestsLibrary, self).__getattribute__(name)
 
     def create_client_oauth2_session(self, *args, **kwargs):
-        # pylint: disable=line-too-long
-        """Create and return an OAuth2 session to a server with client credentials grant
-        access token.
+        """Create and return an [http://oauth.net/2/|OAuth2] session object to a server
+        with [https://tools.ietf.org/html/rfc6749#section-1.3.4|client credentials]
+        authorization grant [https://tools.ietf.org/html/rfc6749#section-1.4|access token].
 
-        ``alias`` is a Robot Framework alias to identify the OAuth2 session
-
-        ``token_url`` is url of the OAuth2 token server
-
-        ``tenant_id`` is the client id obtained during registration with OAuth2 provider
-
-        ``tenant_secret`` is the client secret obtained during registration with OAuth2 provider
-
-        ``base_url`` is base url of the server
-
-        ``headers`` is a Dictionary of default headers
-
-        ``cookies`` is a Dictionary of default cookies
-
-        ``timeout`` is the connection timeout in seconds
-
-        ``proxies`` is a Dictionary that contains proxy urls for HTTP and HTTPS communication
-
-        ``verify`` set to True if Requests should verify the SSL certificate
+        Arguments:
+        - ``label``: A case and space insensitive string to identify the OAuth2 session.
+        - ``token_url``: The OAuth2 token server URL.
+        - ``tenant_id``: The client id obtained during registration with OAuth2 provider.
+        - ``tenant_secret``: The client secret obtained during registration with OAuth2 provider.
+        - ``base_url``: The server base URL.
+        - ``headers``: Default headers dictionary.
+        - ``cookies``: Default cookies dictionary.
+        - ``timeout``: The connection timeout in seconds.
+        - ``proxies``: The proxy URLs dictionary for HTTP and/or HTTPS communication.
+        - ``verify``: Set to True if [http://docs.python-requests.org/en/latest/|Requests]
+                      should verify the SSL certificate.
 
         Examples:
-        | ${var} = | Create Client OAuth2 Session | My-Label | https://localhost/oauth/token |
-        | ${var} = | Create Client OAuth2 Session | My-Label | https://localhost/oauth/token | key | secret |
+        | ${var} = | Create Client OAuth2 Session | label | https://token |
+        | ${var} = | Create Client OAuth2 Session | label | https://token | key | secret |
         """
-        # pylint: disable=line-too-long
         return self._create_oauth2_session(BackendApplicationClient(''), *args, **kwargs)
 
-    def create_ntlm_session(self, alias, url, auth, **kwargs):
-        super(ExtendedRequestsLibrary, self).create_ntlm_session(alias, url, auth, **kwargs)
+    def create_ntlm_session(self, label, base_url, auth, **kwargs):
+        """Create and return a [https://en.wikipedia.org/wiki/NT_LAN_Manager|NTLM] session
+        object to a server.
+
+        Arguments:
+        - ``label``: A case and space insensitive string to identify the OAuth2 session.
+        - ``base_url``: The server base URL.
+        - ``auth``: A list of NTLM authentication credentials. ['domain', 'username', 'password']
+        - ``headers``: Default headers dictionary.
+        - ``timeout``: The connection timeout in seconds.
+        - ``proxies``: The proxy URLs dictionary for HTTP and/or HTTPS communication.
+        - ``verify``: Set to True if [http://docs.python-requests.org/en/latest/|Requests]
+                      should verify the SSL certificate.
+
+        Examples:
+        | @{auth} = | Create List | domain | username | password |
+        | ${var} = | Create NTLM Session | label | https://service | auth=@{auth} |
+        """
+        return super(ExtendedRequestsLibrary, self).create_ntlm_session(label, base_url, auth, **kwargs)
 
     def create_password_oauth2_session(self, *args, **kwargs):
         # pylint: disable=line-too-long
-        """Create and return an OAuth2 session to a server with password grant
-        access token.
+        """Create and return an [http://oauth.net/2/|OAuth2] session object to a server with
+        [https://tools.ietf.org/html/rfc6749#section-1.3.3|resource owner password credentials]
+        authorization grant [https://tools.ietf.org/html/rfc6749#section-1.4|access token].
 
-        ``alias`` is a Robot Framework alias to identify the OAuth2 session
-
-        ``token_url`` is url of the OAuth2 token server
-
-        ``tenant_id`` is the client id obtained during registration with OAuth2 provider
-
-        ``tenant_secret`` is the client secret obtained during registration with OAuth2 provider
-
-        ``username`` is the resource owner username
-
-        ``password`` is the resource owner password
-
-        ``base_url`` is base url of the server
-
-        ``headers`` is a Dictionary of default headers
-
-        ``cookies`` is a Dictionary of default cookies
-
-        ``timeout`` is the connection timeout in seconds
-
-        ``proxies`` is a Dictionary that contains proxy urls for HTTP and HTTPS communication
-
-        ``verify`` set to True if Requests should verify the SSL certificate
+        Arguments:
+        - ``label``: A case and space insensitive string to identify the OAuth2 session.
+        - ``token_url``: The OAuth2 token server URL.
+        - ``tenant_id``: The client id obtained during registration with OAuth2 provider.
+        - ``tenant_secret``: The client secret obtained during registration with OAuth2 provider.
+        - ``username``: The resource owner username.
+        - ``password``: The resource owner password.
+        - ``base_url``: The server base URL.
+        - ``headers``: Default headers dictionary.
+        - ``cookies``: Default cookies dictionary.
+        - ``timeout``: The connection timeout in seconds.
+        - ``proxies``: The proxy URLs dictionary for HTTP and/or HTTPS communication.
+        - ``verify``: Set to True if [http://docs.python-requests.org/en/latest/|Requests]
+                      should verify the SSL certificate.
 
         Examples:
-        | ${var} = | Create Password OAuth2 Session | My-Label | https://localhost/oauth/token |
-        | ${var} = | Create Password OAuth2 Session | My-Label | https://localhost/oauth/token | key | secret |
-        | ${var} = | Create Password OAuth2 Session | My-Label | https://localhost/oauth/token | username=username | password=password |
-        | ${var} = | Create Password OAuth2 Session | My-Label | https://localhost/oauth/token | key | secret | username | password |
+        | ${var} = | Create Password OAuth2 Session | label | https://token |
+        | ${var} = | Create Password OAuth2 Session | label | https://token | key | secret |
+        | ${var} = | Create Password OAuth2 Session | label | https://token | username=usn | password=pwd |
+        | ${var} = | Create Password OAuth2 Session | label | https://token | key | secret | usn | pwd |
         """
         # pylint: disable=line-too-long
         return self._create_oauth2_session(LegacyApplicationClient(''), *args, **kwargs)
 
-    def create_session(self, alias, url, **kwargs):
-        super(ExtendedRequestsLibrary, self).create_session(alias, url, **kwargs)
+    def create_session(self, label, base_url, **kwargs):
+        """Create and return a HTTP session object to a server.
 
-    def delete_request(self, alias, uri, **kwargs):
-        """Send a DELETE request on the session object found in the cache using the given ``alias``
+        Arguments:
+        - ``label``: A case and space insensitive string to identify the OAuth2 session.
+        - ``base_url``: The server base URL.
+        - ``auth``: A list of HTTP basic authentication credentials. ['username', 'password']
+        - ``headers``: Default headers dictionary.
+        - ``timeout``: The connection timeout in seconds.
+        - ``proxies``: The proxy URLs dictionary for HTTP and/or HTTPS communication.
+        - ``verify``: Set to True if [http://docs.python-requests.org/en/latest/|Requests]
+                      should verify the SSL certificate.
 
-        ``alias`` that will be used to identify the Session object in the cache
+        Examples:
+        | @{auth} = | Create List | username | password |
+        | ${var} = | Create Session | label | https://service | auth=@{auth} |
+        """
+        return super(ExtendedRequestsLibrary, self).create_session(label, base_url, **kwargs)
 
-        ``uri`` to send the DELETE request to
+    def delete_request(self, label, uri, **kwargs):
+        """Send a DELETE request on the session object found in the cache
+        using the given ``label``.
 
-        ``data`` a dictionary of key-value pairs that will be urlencoded and
-        sent as DELETE data or binary data that is sent as the raw body content
+        Arguments:
+        - ``label``: A case and space insensitive string to identify
+                     the Session object in the cache.
+        - ``uri``: The request URI that will be combined with ``base_url``
+                   if it was specified in the Session object.
+        - ``data``: A key-value pairs dictionary that will be urlencoded and
+                    sent as raw body content data or binary data.
+        - ``headers``: Headers dictionary that will be accompanied the request.
+        - ``allow_redirects``: A flag to allow connection redirects.
 
-        ``headers`` a dictionary of headers to use with the request
-
-        ``allow_redirects`` a flag to allow connection redirects
+        Examples:
+        | ${var} = | Delete Request | label | /endpoint |
         """
         allow_redirects = bool(kwargs.pop('allow_redirects', None))
         data = self._utf8_urlencode(kwargs.pop('data', None))
         headers = kwargs.pop('headers', None)
-        session = self._cache.switch(alias)
+        session = self._cache.switch(label)
         response = session.delete(self._get_url(session, uri), allow_redirects=allow_redirects,
                                   cookies=self.cookies, data=data, headers=headers,
                                   timeout=self.timeout, **kwargs)
         return self._finalize_response(session, response, 'DELETE')
 
-    def get_request(self, alias, uri, **kwargs):
-        """Send a GET request on the session object found in the cache using the given ``alias``
+    def delete_session(self, label):
+        """Removes session object using the given ``label``.
 
-        ``alias`` that will be used to identify the Session object in the cache
+        Arguments:
+        - ``label``: A case and space insensitive string to identify
+                     the Session object in the cache.
 
-        ``uri`` to send the GET request to
+        Examples:
+        | Delete Session | label |
+        """
+        self._cache.switch(label)
+        index = self._cache.current_index
+        # pylint: disable=protected-access
+        self._cache.current = self._cache._no_current
+        # pylint: disable=protected-access
+        self._cache._connections[index - 1] = None
+        # pylint: disable=protected-access
+        self._cache._aliases['x-%s-x' % label] = self._cache._aliases.pop(label)
 
-        ``headers`` a dictionary of headers to use with the request
+    def get_request(self, label, uri, **kwargs):
+        """Send a GET request on the session object found in the cache using the given ``label``.
 
-        ``params`` a dictionary of key-value pairs that will be urlencoded and sent as GET data
+        Arguments:
+        - ``label``: A case and space insensitive string to identify
+                     the Session object in the cache.
+        - ``uri``: The request URI that will be combined with ``base_url``
+                   if it was specified in the Session object.
+        - ``headers``: Headers dictionary that will be accompanied the request.
+        - ``params``: A key-value pairs dictionary that will be urlencoded and sent as GET data.
+        - ``allow_redirects``: A flag to allow connection redirects.
 
-        ``allow_redirects`` a flag to allow connection redirects
+        Examples:
+        | ${var} = | Get Request | label | /endpoint |
         """
         allow_redirects = bool(kwargs.pop('allow_redirects', None))
         headers = kwargs.pop('headers', None)
         params = self._utf8_urlencode(kwargs.pop('params', None))
-        session = self._cache.switch(alias)
+        session = self._cache.switch(label)
         response = session.get(self._get_url(session, uri), allow_redirects=allow_redirects,
                                cookies=self.cookies, headers=headers, params=params,
                                timeout=self.timeout, **kwargs)
         return self._finalize_response(session, response, 'GET')
 
-    def get_session_object(self, alias):
-        """Returns the session object found in the cache using the given ``alias``
+    def get_session_object(self, label):
+        """Returns the session object found in the cache using the given ``label``
 
-        ``alias`` that will be used to identify the Session object in the cache
+        Arguments:
+        - ``label``: A case and space insensitive string to identify
+                     the Session object in the cache.
+
+        Examples:
+        | ${var} = | Get Session Object | label |
         """
-        response = self._cache.switch(alias)
+        response = self._cache.switch(label)
         logger.debug(vars(response))
         return response
 
-    def head_request(self, alias, uri, **kwargs):
-        """Send a HEAD request on the session object found in the cache using the given ``alias``
+    def head_request(self, label, uri, **kwargs):
+        """Send a HEAD request on the session object found in the cache using the given ``label``.
 
-        ``alias`` that will be used to identify the Session object in the cache
+        Arguments:
+        - ``label``: A case and space insensitive string to identify
+                     the Session object in the cache.
+        - ``uri``: The request URI that will be combined with ``base_url``
+                   if it was specified in the Session object.
+        - ``headers``: Headers dictionary that will be accompanied the request.
+        - ``allow_redirects``: A flag to allow connection redirects.
 
-        ``uri`` to send the HEAD request to
-
-        ``headers`` a dictionary of headers to use with the request
-
-        ``allow_redirects`` a flag to allow connection redirects
+        Examples:
+        | ${var} = | Head Request | label | /endpoint |
         """
         allow_redirects = bool(kwargs.pop('allow_redirects', None))
         headers = kwargs.pop('headers', None)
-        session = self._cache.switch(alias)
+        session = self._cache.switch(label)
         response = session.head(self._get_url(session, uri), allow_redirects=allow_redirects,
                                 cookies=self.cookies, headers=headers, timeout=self.timeout,
                                 **kwargs)
         return self._finalize_response(session, response, 'HEAD')
 
-    def options_request(self, alias, uri, **kwargs):
-        """Send a OPTIONS request on the session object found in the cache using the given ``alias``
+    def options_request(self, label, uri, **kwargs):
+        """Send a OPTIONS request on the session object found in the cache
+        using the given ``label``.
 
-        ``alias`` that will be used to identify the Session object in the cache
+        Arguments:
+        - ``label``: A case and space insensitive string to identify
+                     the Session object in the cache.
+        - ``uri``: The request URI that will be combined with ``base_url``
+                   if it was specified in the Session object.
+        - ``headers``: Headers dictionary that will be accompanied the request.
+        - ``allow_redirects``: A flag to allow connection redirects.
 
-        ``uri`` to send the OPTIONS request to
-
-        ``headers`` a dictionary of headers to use with the request
-
-        ``allow_redirects`` a flag to allow connection redirects
+        Examples:
+        | ${var} = | Options Request | label | /endpoint |
         """
         allow_redirects = bool(kwargs.pop('allow_redirects', None))
         headers = kwargs.pop('headers', None)
-        session = self._cache.switch(alias)
+        session = self._cache.switch(label)
         response = session.options(self._get_url(session, uri), allow_redirects=allow_redirects,
                                    cookies=self.cookies, headers=headers, timeout=self.timeout,
                                    **kwargs)
         return self._finalize_response(session, response, 'OPTIONS')
 
-    def patch_request(self, alias, uri, **kwargs):
+    def patch_request(self, label, uri, **kwargs):
         # pylint: disable=line-too-long
-        """Send a PATCH request on the session object found in the cache using the given ``alias``
+        """Send a PATCH request on the session object found in the cache
+        using the given ``label``.
 
-        ``alias`` that will be used to identify the Session object in the cache
-
-        ``uri`` to send the PATCH request to
-
-        ``data`` a dictionary of key-value pairs that will be urlencoded and
-        sent as PATCH data or binary data that is sent as the raw body content
-
-        ``headers`` a dictionary of headers to use with the request
-
-        ``files`` a dictionary of multiple file names and file paths data to PATCH to the server.
-
-        ``allow_redirects`` a flag to allow connection redirects
+        Arguments:
+        - ``label``: A case and space insensitive string to identify
+                     the Session object in the cache.
+        - ``uri``: The request URI that will be combined with ``base_url``
+                   if it was specified in the Session object.
+        - ``data``: A key-value pairs dictionary that will be urlencoded and
+                    sent as raw body content data or binary data.
+        - ``headers``: Headers dictionary that will be accompanied the request.
+        - ``files``: Multiple file names and file paths dictionary data to be uploaded.
+        - ``allow_redirects``: A flag to allow connection redirects.
 
         Examples:
         | &{files} = | Create Dictionary | file1=/path/to/a_file.ext | file2=/path/to/another_file.ext | # Collections library |
-        | ${var} = | Patch Request | label | uri | files=&{files} |
+        | ${var} = | Patch Request | label | /endpoint | files=&{files} |
         """
         # pylint: disable=line-too-long
         allow_redirects = bool(kwargs.pop('allow_redirects', None))
         data = self._utf8_urlencode(kwargs.pop('data', None))
         files = kwargs.pop('files', None)
         if files is not None:
-            for key, value in files.items():
+            for key, value in list(files.items()):
                 files[key] = open(value, 'rb')
         headers = kwargs.pop('headers', None)
-        session = self._cache.switch(alias)
+        session = self._cache.switch(label)
         response = session.patch(self._get_url(session, uri), allow_redirects=allow_redirects,
                                  cookies=self.cookies, data=data, files=files, headers=headers,
                                  timeout=self.timeout, **kwargs)
         return self._finalize_response(session, response, 'PATCH')
 
-    def post_request(self, alias, uri, **kwargs):
+    def post_request(self, label, uri, **kwargs):
         # pylint: disable=line-too-long
-        """Send a POST request on the session object found in the cache using the given ``alias``
+        """Send a POST request on the session object found in the cache using the given ``label``.
 
-        ``alias`` that will be used to identify the Session object in the cache
-
-        ``uri`` to send the POST request to
-
-        ``data`` a dictionary of key-value pairs that will be urlencoded and
-        sent as POST data or binary data that is sent as the raw body content
-
-        ``headers`` a dictionary of headers to use with the request
-
-        ``files`` a dictionary of multiple file names and file paths data to POST to the server.
-
-        ``allow_redirects`` a flag to allow connection redirects
+        Arguments:
+        - ``label``: A case and space insensitive string to identify
+                     the Session object in the cache.
+        - ``uri``: The request URI that will be combined with ``base_url``
+                   if it was specified in the Session object.
+        - ``data``: A key-value pairs dictionary that will be urlencoded and
+                    sent as raw body content data or binary data.
+        - ``headers``: Headers dictionary that will be accompanied the request.
+        - ``files``: Multiple file names and file paths dictionary data to be uploaded.
+        - ``allow_redirects``: A flag to allow connection redirects.
 
         Examples:
         | &{files} = | Create Dictionary | file1=/path/to/a_file.ext | file2=/path/to/another_file.ext | # Collections library |
-        | ${var} = | Post Request | label | uri | files=&{files} |
+        | ${var} = | Post Request | label | /endpoint | files=&{files} |
         """
         # pylint: disable=line-too-long
         allow_redirects = bool(kwargs.pop('allow_redirects', None))
         data = self._utf8_urlencode(kwargs.pop('data', None))
         files = kwargs.pop('files', None)
         if files is not None:
-            for key, value in files.items():
+            for key, value in list(files.items()):
                 files[key] = open(value, 'rb')
         headers = kwargs.pop('headers', None)
-        session = self._cache.switch(alias)
+        session = self._cache.switch(label)
         response = session.post(self._get_url(session, uri), allow_redirects=allow_redirects,
                                 cookies=self.cookies, data=data, files=files, headers=headers,
                                 timeout=self.timeout, **kwargs)
         return self._finalize_response(session, response, 'POST')
 
-    def put_request(self, alias, uri, **kwargs):
-        """Send a PUT request on the session object found in the cache using the given ``alias``
+    def put_request(self, label, uri, **kwargs):
+        """Send a PUT request on the session object found in the cache using the given ``label``.
 
-        ``alias`` that will be used to identify the Session object in the cache
+        Arguments:
+        - ``label``: A case and space insensitive string to identify
+                     the Session object in the cache.
+        - ``uri``: The request URI that will be combined with ``base_url``
+                   if it was specified in the Session object.
+        - ``data``: A key-value pairs dictionary that will be urlencoded and
+                    sent as raw body content data or binary data.
+        - ``headers``: Headers dictionary that will be accompanied the request.
+        - ``allow_redirects``: A flag to allow connection redirects.
 
-        ``uri`` to send the PUT request to
-
-        ``data`` a dictionary of key-value pairs that will be urlencoded and
-        sent as PUT data or binary data that is sent as the raw body content
-
-        ``headers`` a dictionary of headers to use with the request
-
-        ``allow_redirects`` a flag to allow connection redirects
+        Examples:
+        | ${var} = | Put Request | label | /endpoint |
         """
         allow_redirects = bool(kwargs.pop('allow_redirects', None))
         data = self._utf8_urlencode(kwargs.pop('data', None))
         headers = kwargs.pop('headers', None)
-        session = self._cache.switch(alias)
+        session = self._cache.switch(label)
         response = session.put(self._get_url(session, uri), allow_redirects=allow_redirects,
                                cookies=self.cookies, data=data, headers=headers,
                                timeout=self.timeout, **kwargs)
@@ -373,7 +426,7 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
         fetch_kwargs = kwargs.copy()
         kargs = dict(enumerate(args))
         argv = {
-            'alias': kargs.get(0, None),
+            'label': kargs.get(0, None),
             'password': kargs.get(5, kwargs.get('password', None)),
             'tenant_id': kargs.get(2, None),
             'tenant_secret': kargs.get(3, None),
@@ -381,8 +434,8 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
             'username': kargs.get(4, kwargs.get('username', None))
         }
         kw_message = ', '.join(['%s=%s' % (key, value) for (key, value) in list(kwargs.items())])
-        log_message = ('Creating OAuth2 Session using: alias=%s, token_url=%s' %
-                       (argv.get('alias'), argv.get('token_url')))
+        log_message = ('Creating OAuth2 Session using: label=%s, token_url=%s' %
+                       (argv.get('label'), argv.get('token_url')))
         if argv.get('tenant_id') is not None and argv.get('tenant_secret') is not None:
             fetch_kwargs['auth'] = HTTPBasicAuth(argv.get('tenant_id'), argv.get('tenant_secret'))
             log_message += (', tenant_id=%s, tenant_secret=%s' %
@@ -404,7 +457,7 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
         fetch_kwargs.pop('proxies', None)
         fetch_kwargs.pop('timeout', None)
         session.fetch_token(argv.get('token_url'), **fetch_kwargs)
-        self._cache.register(session, alias=argv.get('alias'))
+        self._cache.register(session, alias=argv.get('label'))
         return session
 
     @staticmethod
