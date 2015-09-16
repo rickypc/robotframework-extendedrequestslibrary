@@ -44,12 +44,12 @@ __version__ = get_version()
 
 class ExtendedRequestsLibrary(RequestsLibrary, Utility):
     # pylint: disable=line-too-long
-    """ExtendedRequestsLibrary is an extended HTTP client library
-    for [http://robotframework.org|Robot Framework] with [http://oauth.net/2/|OAuth2] support
+    """ExtendedRequestsLibrary is an extended HTTP client library for
+    [http://goo.gl/lES6WM|Robot Framework] with [http://goo.gl/VehoOR|OAuth2] support
     that leverages other projects:
-    - [http://docs.python-requests.org/en/latest/|requests] project
-    - [https://requests-oauthlib.readthedocs.org/en/latest/|requests_oauthlib] project
-    - [https://bulkan.github.io/robotframework-requests/|RequestsLibrary] project
+    - [http://goo.gl/8p7MOG|requests] project
+    - [https://goo.gl/Tavax4|requests_oauthlib] project
+    - [https://goo.gl/3FBo9w|RequestsLibrary] project
 
     Examples:
     | `Create Client OAuth2 Session` | client-label | https://token | key | secret | base_url=https://service |
@@ -109,9 +109,9 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
         return super(ExtendedRequestsLibrary, self).__getattribute__(name)
 
     def create_client_oauth2_session(self, *args, **kwargs):
-        """Create and return an [http://oauth.net/2/|OAuth2] session object to a server
-        with [https://tools.ietf.org/html/rfc6749#section-1.3.4|client credentials]
-        authorization grant [https://tools.ietf.org/html/rfc6749#section-1.4|access token].
+        """Create and return an [http://goo.gl/VehoOR|OAuth2] session object to a server
+        with [https://goo.gl/EJsqun|client credentials] authorization grant
+        [https://goo.gl/YjNlJf|access token].
 
         Arguments:
         - ``label``: A case and space insensitive string to identify the OAuth2 session.
@@ -123,8 +123,8 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
         - ``cookies``: Default cookies dictionary.
         - ``timeout``: The connection timeout in seconds.
         - ``proxies``: The proxy URLs dictionary for HTTP and/or HTTPS communication.
-        - ``verify``: Set to True if [http://docs.python-requests.org/en/latest/|Requests]
-                      should verify the SSL certificate.
+        - ``verify``: Set to True if [http://goo.gl/8p7MOG|Requests] should verify the SSL
+                      certificate.
 
         Examples:
         | ${var} = | Create Client OAuth2 Session | label | https://token |
@@ -133,8 +133,7 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
         return self._create_oauth2_session(BackendApplicationClient(''), *args, **kwargs)
 
     def create_ntlm_session(self, label, base_url, auth, **kwargs):
-        """Create and return a [https://en.wikipedia.org/wiki/NT_LAN_Manager|NTLM] session
-        object to a server.
+        """Create and return a [https://goo.gl/zac4cn|NTLM] session object to a server.
 
         Arguments:
         - ``label``: A case and space insensitive string to identify the OAuth2 session.
@@ -143,8 +142,8 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
         - ``headers``: Default headers dictionary.
         - ``timeout``: The connection timeout in seconds.
         - ``proxies``: The proxy URLs dictionary for HTTP and/or HTTPS communication.
-        - ``verify``: Set to True if [http://docs.python-requests.org/en/latest/|Requests]
-                      should verify the SSL certificate.
+        - ``verify``: Set to True if [http://goo.gl/8p7MOG|Requests] should verify the SSL
+                      certificate.
 
         Examples:
         | @{auth} = | Create List | domain | username | password |
@@ -154,9 +153,9 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
 
     def create_password_oauth2_session(self, *args, **kwargs):
         # pylint: disable=line-too-long
-        """Create and return an [http://oauth.net/2/|OAuth2] session object to a server with
-        [https://tools.ietf.org/html/rfc6749#section-1.3.3|resource owner password credentials]
-        authorization grant [https://tools.ietf.org/html/rfc6749#section-1.4|access token].
+        """Create and return an [http://goo.gl/VehoOR|OAuth2] session object to a server with
+        [https://goo.gl/N9R62O|resource owner password credentials] authorization grant
+        [https://goo.gl/YjNlJf|access token].
 
         Arguments:
         - ``label``: A case and space insensitive string to identify the OAuth2 session.
@@ -170,8 +169,8 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
         - ``cookies``: Default cookies dictionary.
         - ``timeout``: The connection timeout in seconds.
         - ``proxies``: The proxy URLs dictionary for HTTP and/or HTTPS communication.
-        - ``verify``: Set to True if [http://docs.python-requests.org/en/latest/|Requests]
-                      should verify the SSL certificate.
+        - ``verify``: Set to True if [http://goo.gl/8p7MOG|Requests] should verify the SSL
+                      certificate.
 
         Examples:
         | ${var} = | Create Password OAuth2 Session | label | https://token |
@@ -192,8 +191,8 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
         - ``headers``: Default headers dictionary.
         - ``timeout``: The connection timeout in seconds.
         - ``proxies``: The proxy URLs dictionary for HTTP and/or HTTPS communication.
-        - ``verify``: Set to True if [http://docs.python-requests.org/en/latest/|Requests]
-                      should verify the SSL certificate.
+        - ``verify``: Set to True if [http://goo.gl/8p7MOG|Requests] should verify the SSL
+                      certificate.
 
         Examples:
         | @{auth} = | Create List | username | password |
@@ -202,12 +201,12 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
         return super(ExtendedRequestsLibrary, self).create_session(label, base_url, **kwargs)
 
     def delete_request(self, label, uri, **kwargs):
-        """Send a DELETE request on the session object found in the cache
-        using the given ``label``.
+        """Send a DELETE request on the session object found in the cache using the given
+        ``label``.
 
         Arguments:
-        - ``label``: A case and space insensitive string to identify
-                     the Session object in the cache.
+        - ``label``: A case and space insensitive string to identify the Session object
+                     in the cache.
         - ``uri``: The request URI that will be combined with ``base_url``
                    if it was specified in the Session object.
         - ``data``: A key-value pairs dictionary that will be urlencoded and
