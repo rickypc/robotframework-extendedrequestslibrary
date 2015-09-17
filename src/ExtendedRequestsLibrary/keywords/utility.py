@@ -39,7 +39,8 @@ class Utility(object):
         self._os = OperatingSystem()
 
     def get_json_file(self, path):
-        """Returns JSON object from JSON file with all variables replaced.
+        """Returns [http://goo.gl/o0X6Pp|JSON] object from [http://goo.gl/o0X6Pp|JSON] file
+        with all variables replaced.
 
         Arguments:
         - ``path``: The path to JSON file.
@@ -65,7 +66,8 @@ class Utility(object):
 
     def json_loads(self, text):
         # pylint: disable=line-too-long
-        """Returns JSON object from JSON string with object restoration support.
+        """Returns [http://goo.gl/o0X6Pp|JSON] object from [http://goo.gl/o0X6Pp|JSON] string
+        with object restoration support.
 
         Arguments:
         - ``text``: JSON string.
