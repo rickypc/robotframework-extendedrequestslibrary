@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #    Extended Requests Library - a HTTP client library with OAuth2 support.
-#    Copyright (C) 2015  Richard Huang <rickypc@users.noreply.github.com>
+#    Copyright (c) 2015, 2016 Richard Huang <rickypc@users.noreply.github.com>
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -131,42 +131,42 @@ class ExtendedRequestsLibraryTests(unittest.TestCase):
         library.delete_session(self.label)
         with self.assertRaises(RuntimeError) as context:
             library._cache.switch(self.label)
-        self.assertTrue("Non-existing index or alias '%s'." % self.label in context.exception)
+            self.assertTrue("Non-existing index or alias '%s'." % self.label in context.exception)
 
     def test_delete_keyword_raise_exception(self):
         with self.assertRaises(AttributeError) as context:
             self.library.delete()
-        self.assertTrue("'delete' is deprecated." in context.exception)
+            self.assertTrue("'delete' is deprecated." in context.exception)
 
     def test_get_keyword_raise_exception(self):
         with self.assertRaises(AttributeError) as context:
             self.library.get()
-        self.assertTrue("'get' is deprecated." in context.exception)
+            self.assertTrue("'get' is deprecated." in context.exception)
 
     def test_head_keyword_raise_exception(self):
         with self.assertRaises(AttributeError) as context:
             self.library.head()
-        self.assertTrue("'head' is deprecated." in context.exception)
+            self.assertTrue("'head' is deprecated." in context.exception)
 
     def test_options_keyword_raise_exception(self):
         with self.assertRaises(AttributeError) as context:
             self.library.options()
-        self.assertTrue("'options' is deprecated." in context.exception)
+            self.assertTrue("'options' is deprecated." in context.exception)
 
     def test_post_keyword_raise_exception(self):
         with self.assertRaises(AttributeError) as context:
             self.library.post()
-        self.assertTrue("'post' is deprecated." in context.exception)
+            self.assertTrue("'post' is deprecated." in context.exception)
 
     def test_put_keyword_raise_exception(self):
         with self.assertRaises(AttributeError) as context:
             self.library.put()
-        self.assertTrue("'put' is deprecated." in context.exception)
+            self.assertTrue("'put' is deprecated." in context.exception)
 
     def test_patch_keyword_raise_exception(self):
         with self.assertRaises(AttributeError) as context:
             self.library.patch()
-        self.assertTrue("'patch' is deprecated." in context.exception)
+            self.assertTrue("'patch' is deprecated." in context.exception)
 
     def test_create_session_workflow(self):
         library = self.library

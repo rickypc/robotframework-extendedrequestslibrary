@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #    Extended Requests Library - a HTTP client library with OAuth2 support.
-#    Copyright (C) 2015  Richard Huang <rickypc@users.noreply.github.com>
+#    Copyright (c) 2015, 2016 Richard Huang <rickypc@users.noreply.github.com>
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -58,7 +58,7 @@ class Utility(object):
         | @{var} = | Get JSON File | request.json |
         | # [{'key2': 'value2', 'bad': False, 'good': True, 'key': Decimal('5.5')}] |
         """
-        content = self._os.get_binary_file(path)
+        content = self._os.get_file(path)
         content = self._builtin.replace_variables(content)
         content = sub(r'(False|True)', lambda match: match.group(1).lower(), content)
         logger.debug(content)

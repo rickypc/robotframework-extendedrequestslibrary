@@ -1,5 +1,5 @@
 #    Extended Requests Library - a HTTP client library with OAuth2 support.
-#    Copyright (C) 2015  Richard Huang <rickypc@users.noreply.github.com>
+#    Copyright (c) 2015, 2016 Richard Huang <rickypc@users.noreply.github.com>
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -40,8 +40,10 @@ install_devel_deps:
 	pip install coverage mock requests_ntlm
 
 lint:clean
-	flake8 --max-complexity 10
-	pylint --rcfile=setup.cfg src/$(LIBRARY_NAME)/*.py
+	flake8 --max-complexity 10 src/$(LIBRARY_NAME)/*.py\
+		src/$(LIBRARY_NAME)/keywords/*.py
+	pylint --rcfile=setup.cfg src/$(LIBRARY_NAME)/*.py\
+		src/$(LIBRARY_NAME)/keywords/*.py
 
 test:clean
 	PYTHONPATH=./src: coverage run --source=src -m unittest discover test/utest

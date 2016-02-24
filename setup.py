@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #    Extended Requests Library - a HTTP client library with OAuth2 support.
-#    Copyright (C) 2015  Richard Huang <rickypc@users.noreply.github.com>
+#    Copyright (c) 2015, 2016 Richard Huang <rickypc@users.noreply.github.com>
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -29,7 +29,8 @@ from setuptools import setup, find_packages
 
 LIBRARY_NAME = 'ExtendedRequestsLibrary'
 CWD = abspath(dirname(__file__))
-execfile(join(CWD, 'src', LIBRARY_NAME, 'version.py'))
+VERSION_PATH = join(CWD, 'src', LIBRARY_NAME, 'version.py')
+exec(compile(open(VERSION_PATH).read(), VERSION_PATH, 'exec'))
 
 with codecs.open(join(CWD, 'README.rst'), encoding='utf-8') as reader:
     LONG_DESCRIPTION = reader.read()
@@ -45,10 +46,13 @@ setup(
     license='AGPL 3',
     classifiers=[
         'Development Status :: 4 - Beta',
+        'Framework :: Robot Framework',
         'Intended Audience :: Developers',
-        'Topic :: Software Development :: Testing',
         'License :: OSI Approved :: GNU Affero General Public License v3',
         'Programming Language :: Python :: 2.7',
+        # While this test library support Python 3.x, the parent library is not
+        #'Programming Language :: Python :: 3.5',
+        'Topic :: Software Development :: Testing',
     ],
     keywords='robot framework extended http testing automation requests '
              'oauth2 oauth rest api softwaretesting',

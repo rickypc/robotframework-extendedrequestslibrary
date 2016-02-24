@@ -1,3 +1,11 @@
+0.5.4 (2016.02.23)
+==================
+
+* Fix typos
+* Adjust copyright years
+* Add Python 3.x support
+* Adjust test cases and supporting setup
+
 0.5.3 (2015.08.17)
 ==================
 

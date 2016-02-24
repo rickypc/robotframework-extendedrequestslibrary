@@ -15,27 +15,26 @@ More information about this library can be found in the `Keyword Documentation`_
 Example
 '''''''
 
-+----------------------------------+--------+---------------+-----+--------+-----------------------------------------+
-| Create Client OAuth2 Session     | client | https://token | key | secret | base_url=https://service                |
-+------------+---------------------+--------+---------------+-----+--------+-----------------------------------------+
-| ${var} =   | Post Request        | client | /endpoint     | json=${“key": "value"}                                 |
-+------------+---------------------+--------+---------------+--------------------------------------------------------+
-| Log        | ${var}                                                                                                |
-+------------+---------------------+--------+---------------+-----+--------+-----+-----+-----------------------------+
-| Create Password OAuth2 Session   | member | https://token | key | secret | usn | pwd | base_url=https://service    |
-+------------+---------------------+--------+---------------+-----+--------+-----+-----+-----------------------------+
-| ${var} =   | Post Request        | member | /endpoint     | json=${“key": "value"}                                 |
-+------------+---------------------+--------+---------------+--------------------------------------------------------+
-| Log        | ${var}                                                                                                |
-+------------+---------------------+------------------------------+--------------------------------------------------+
-| &{files} = | Create Dictionary   | file1=/path/to/a_file.ext    | file2=/path/to/another_file.ext                  |
-+------------+---------------------+--------+---------------------+--------------------------------------------------+
-| ${var} =   | Post Request        | member | /endpoint           | files=&{files}                                   |
-+------------+---------------------+--------+---------------------+--------------------------------------------------+
-| Log        | ${var}                                                                                                |
-+------------+-------------------------------------------------------------------------------------------------------+
-| Delete All Sessions                                                                                                |
-+--------------------------------------------------------------------------------------------------------------------+
+.. code:: robotframework
+
+    *** Settings ***
+    Library    ExtendedRequestsLibrary
+
+    *** Test Cases ***
+    Post Request With Client Credentials
+        Create Client OAuth2 Session    client    https://token    key    secret    base_url=https://service
+        ${var} =    Post Request    client    /endpoint    json=${“key": "value"}
+        Log    ${var}
+        Delete All Sessions
+
+    Post Request With Password
+        Create Password OAuth2 Session    member    https://token    key    secret    usn    pwd    base_url=https://service
+        ${var} =    Post Request    member    /endpoint    json=${“key": "value"}
+        Log    ${var}
+        &{files} =    Create Dictionary    file1=/path/to/a_file.ext    file2=/path/to/another_file.ext
+        ${var} =    Post Request    member    /endpoint    files=&{files}
+        Log    ${var}
+        Delete All Sessions
 
 Installation
 ------------
@@ -45,7 +44,7 @@ Using ``pip``
 
 The recommended installation method is using pip_:
 
-.. code:: bash
+.. code:: console
 
     pip install robotframework-extendedrequestslibrary
 
@@ -53,7 +52,7 @@ The main benefit of using ``pip`` is that it automatically installs all
 dependencies needed by the library. Other nice features are easy upgrading
 and support for un-installation:
 
-.. code:: bash
+.. code:: console
 
     pip install --upgrade robotframework-extendedrequestslibrary
     pip uninstall robotframework-extendedrequestslibrary
@@ -62,7 +61,7 @@ Notice that using ``--upgrade`` above updates both the library and all
 its dependencies to the latest version. If you want, you can also install
 a specific version or upgrade only the requests project used by the library:
 
-.. code:: bash
+.. code:: console
 
     pip install robotframework-extendedrequestslibrary==x.x.x
     pip install --upgrade requests
@@ -103,7 +102,7 @@ and its dependencies yourself.
 
 - Find each public key used to sign the package:
 
-.. code:: bash
+.. code:: console
 
     gpg --keyserver pgp.mit.edu --search-keys D1406DE7
 
@@ -111,7 +110,7 @@ and its dependencies yourself.
 
 - Verify the package against its PGP signature:
 
-.. code:: bash
+.. code:: console
 
     gpg --verify robotframework-extendedrequestslibrary-x.x.x.tar.gz.asc robotframework-extendedrequestslibrary-x.x.x.tar.gz
 
@@ -119,7 +118,7 @@ and its dependencies yourself.
 
 - Go to each created directory from the command line and install each project using:
 
-.. code:: bash
+.. code:: console
 
        python setup.py install
 
@@ -148,6 +147,12 @@ Usage
 
 To write tests with Robot Framework and ExtendedRequestsLibrary,
 ExtendedRequestsLibrary must be imported into your Robot test suite.
+
+.. code:: robotframework
+
+    *** Settings ***
+    Library    ExtendedRequestsLibrary
+
 See `Robot Framework User Guide`_ for more information.
 
 More information about Robot Framework standard libraries and built-in tools
@@ -158,7 +163,7 @@ Building Keyword Documentation
 
 The `Keyword Documentation`_ can be found online, if you need to generate the keyword documentation, run:
 
-.. code:: bash
+.. code:: console
 
     make doc
 
@@ -167,7 +172,7 @@ Run Unit Tests, and Test Coverage Report
 
 Test the testing library, talking about dogfooding, let's run:
 
-.. code:: bash
+.. code:: console
 
     make test
 
@@ -185,7 +190,7 @@ That's it! Thank you for your contribution!
 License
 -------
 
-Copyright (c) 2015 Richard Huang.
+Copyright (c) 2015, 2016 Richard Huang.
 
 This library is free software, licensed under: `GNU Affero General Public License (AGPL-3.0)`_.
 

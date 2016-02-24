@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #    Extended Requests Library - a HTTP client library with OAuth2 support.
-#    Copyright (C) 2015  Richard Huang <rickypc@users.noreply.github.com>
+#    Copyright (c) 2015, 2016 Richard Huang <rickypc@users.noreply.github.com>
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -21,24 +21,26 @@
 Extended Requests Library - a HTTP client library with OAuth2 support.
 """
 
+try:
+    # pylint: disable=no-name-in-module
+    from urllib.parse import urlparse
+except ImportError:
+    # pylint: disable=import-error
+    # pylint: disable=no-name-in-module
+    from urlparse import urlparse
 import logging
-import requests
-from ExtendedRequestsLibrary.keywords import Utility
-from ExtendedRequestsLibrary.version import get_version
 from oauthlib.oauth2 import BackendApplicationClient
 from oauthlib.oauth2 import LegacyApplicationClient
+import requests
 from requests.auth import HTTPBasicAuth
 from requests_oauthlib import OAuth2Session
 from RequestsLibrary import RequestsLibrary
 from robot.api import logger
+from ExtendedRequestsLibrary.keywords import Utility
+from ExtendedRequestsLibrary.version import get_version
+
 requests.packages.urllib3.disable_warnings()
 logging.getLogger('requests').setLevel(logging.WARNING)
-
-try:
-    from urllib.parse import urlparse  # pylint: disable=no-name-in-module
-except ImportError:
-    from urlparse import urlparse  # pylint: disable=no-name-in-module
-
 __version__ = get_version()
 
 
@@ -426,11 +428,11 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
         kargs = dict(enumerate(args))
         argv = {
             'label': kargs.get(0, None),
-            'password': kargs.get(5, kwargs.get('password', None)),
+            'password': kargs.get(5, kwargs.pop('password', None)),
             'tenant_id': kargs.get(2, None),
             'tenant_secret': kargs.get(3, None),
             'token_url': kargs.get(1, None),
-            'username': kargs.get(4, kwargs.get('username', None))
+            'username': kargs.get(4, kwargs.pop('username', None))
         }
         kw_message = ', '.join(['%s=%s' % (key, value) for (key, value) in list(kwargs.items())])
         log_message = ('Creating OAuth2 Session using: label=%s, token_url=%s' %
