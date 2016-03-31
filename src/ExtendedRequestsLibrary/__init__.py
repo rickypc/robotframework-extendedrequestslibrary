@@ -69,11 +69,12 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
     | Log | ${var} |
 
     Non-inherited Keywords:
-    | `Create Client OAuth2 Session`   |
-    | `Create Password OAuth2 Session` |
-    | `Get JSON File`                  |
-    | `Get Session Object`             |
-    | `JSON Loads`                     |
+    | `Create Client OAuth2 Session`      |
+    | `Create Password OAuth2 Session`    |
+    | `Get JSON File`                     |
+    | `Get Session Object`                |
+    | `JSON Loads`                        |
+    | `Natural Sort List Of Dictionaries` |
 
     Inherited Deprecated Keywords:
     | `Delete`  |

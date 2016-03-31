@@ -25,7 +25,7 @@ from collections import namedtuple, OrderedDict
 from decimal import Decimal
 from json import loads
 # import numpy as np
-from re import sub
+from re import split, sub
 from robot.api import logger
 from robot.libraries.BuiltIn import BuiltIn
 from robot.libraries.OperatingSystem import OperatingSystem
@@ -89,6 +89,26 @@ class Utility(object):
         """
         # pylint: disable=line-too-long
         return loads(text, object_hook=self._restore, parse_float=Decimal)
+
+    def natural_sort_list_of_dictionaries(self, items, key):
+        """Returns natural sorted list of dictionaries.
+
+        Arguments:
+        - ``items``: List of dictionaries to be sorted.
+        - ``key``: The dictionary key to be used to sort.
+
+        Examples:
+        | @{var} = | Natural Sort List Of Dictionaries | ${list} | key |
+        """
+        def _natural_sorter(item):
+            """Returns splitted aphanumeric value list of given dictionary key."""
+            return [self._cast_alphanumeric(text) for text in split('([0-9]+)', item[key])]
+        return sorted(items, key=_natural_sorter)
+
+    @staticmethod
+    def _cast_alphanumeric(text):
+        """Casts alphanumeric value."""
+        return int(text) if text.isdigit() else text.lower()
 
     @staticmethod
     def _restore(dct):

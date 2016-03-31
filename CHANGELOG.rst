@@ -1,3 +1,9 @@
+0.5.5 (2016.03.31)
+==================
+
+* Add `Natural Sort Of Dictionaries` keyword
+* Add unit tests
+
 0.5.4 (2016.02.23)
 ==================
 

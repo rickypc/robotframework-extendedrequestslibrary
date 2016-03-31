@@ -22,13 +22,13 @@ Extended Requests Library - a HTTP client library with OAuth2 support.
 """
 
 from sys import path
-path.append('src')
+from os.path import abspath, dirname
+import unittest
 from ExtendedRequestsLibrary import ExtendedRequestsLibrary
 from ExtendedRequestsLibrary.keywords import Utility
-from os.path import abspath, dirname
-from RequestsLibrary import RequestsLibrary
 import mock
-import unittest
+from RequestsLibrary import RequestsLibrary
+path.append('src')
 
 
 class ExtendedRequestsLibraryTests(unittest.TestCase):
@@ -43,6 +43,7 @@ class ExtendedRequestsLibraryTests(unittest.TestCase):
         self.headers = None
         self.label = 'MY-LABEL'
         self.library = ExtendedRequestsLibrary()
+        # pylint: disable=protected-access
         self.library._cache = mock.Mock()
         self.password = 'MY-PASSWORD'
         self.proxies = None
@@ -61,10 +62,12 @@ class ExtendedRequestsLibraryTests(unittest.TestCase):
         self.assertIsInstance(self.library, Utility)
 
     def method_request_workflow(self, method, mock_oauth2, **kwargs):
+        """Common workflow for method request."""
         has_files = 'files' in kwargs
         files = kwargs.pop('files', None)
         library = self.library
         oauth2_instance = mock_oauth2()
+        # pylint: disable=protected-access
         library._cache.switch.return_value = oauth2_instance
         library._finalize_response = mock.Mock()
         url = library._get_url(oauth2_instance, self.uri)
@@ -87,12 +90,14 @@ class ExtendedRequestsLibraryTests(unittest.TestCase):
         response = getattr(oauth2_instance, method)()
         library._finalize_response.assert_called_with(oauth2_instance, response, method.upper())
 
-    def oauth2_workflow(self, grant, mock_logger, mock_oauth2, mock_client, mock_auth):
+    def oauth2_workflow(self, grant, mock_oauth2, mock_client, mock_auth):
+        """Common workflow for OAuth2 session."""
         args = [self.label, self.token_url, self.tenant_id, self.tenant_secret]
         fetch_token_args = {'auth': mock_auth(), 'verify': self.verify}
         kwargs = dict(base_url=self.base_url, cookies=self.cookies, headers=self.headers,
                       proxies=self.proxies, timeout=self.timeout, verify=self.verify)
         library = self.library
+        # pylint: disable=protected-access
         library._register_urls = mock.Mock()
         library._session_init = mock.Mock()
         if grant == 'password':
@@ -118,66 +123,79 @@ class ExtendedRequestsLibraryTests(unittest.TestCase):
     def test_should_have_default_values(self):
         """Extended Requests library instance should have default values set."""
         self.assertIsInstance(self.library, ExtendedRequestsLibrary)
+        # pylint: disable=protected-access
         self.assertIsInstance(self.library._primers, dict)
         self.assertIsNone(self.library.cookies)
         self.assertEqual(self.library.timeout, self.timeout)
         self.assertFalse(self.library.verify)
 
-    def test_delete_should_remove_requested_session(self):
+    def test_delete_should_remove_session(self):
         """Delete session should successfully remove requested existing session."""
         library = ExtendedRequestsLibrary()
         library.create_session(self.label, self.base_url)
         self.assertIsNotNone(library.get_session_object(self.label))
         library.delete_session(self.label)
         with self.assertRaises(RuntimeError) as context:
+            # pylint: disable=protected-access
             library._cache.switch(self.label)
             self.assertTrue("Non-existing index or alias '%s'." % self.label in context.exception)
 
     def test_delete_keyword_raise_exception(self):
+        """Delete method should raise exception."""
         with self.assertRaises(AttributeError) as context:
             self.library.delete()
             self.assertTrue("'delete' is deprecated." in context.exception)
 
     def test_get_keyword_raise_exception(self):
+        """Get method should raise exception."""
         with self.assertRaises(AttributeError) as context:
             self.library.get()
             self.assertTrue("'get' is deprecated." in context.exception)
 
     def test_head_keyword_raise_exception(self):
+        """Head method should raise exception."""
         with self.assertRaises(AttributeError) as context:
             self.library.head()
             self.assertTrue("'head' is deprecated." in context.exception)
 
     def test_options_keyword_raise_exception(self):
+        """Options method should raise exception."""
         with self.assertRaises(AttributeError) as context:
             self.library.options()
             self.assertTrue("'options' is deprecated." in context.exception)
 
     def test_post_keyword_raise_exception(self):
+        """Post method should raise exception."""
         with self.assertRaises(AttributeError) as context:
             self.library.post()
             self.assertTrue("'post' is deprecated." in context.exception)
 
     def test_put_keyword_raise_exception(self):
+        """Put method should raise exception."""
         with self.assertRaises(AttributeError) as context:
             self.library.put()
             self.assertTrue("'put' is deprecated." in context.exception)
 
     def test_patch_keyword_raise_exception(self):
+        """Patch method should raise exception."""
         with self.assertRaises(AttributeError) as context:
             self.library.patch()
             self.assertTrue("'patch' is deprecated." in context.exception)
 
     def test_create_session_workflow(self):
+        """Should create session workflow."""
         library = self.library
         session = mock.Mock()
+        # pylint: disable=protected-access
         library._cache.switch.return_value = session
         library.create_session(self.label, self.base_url)
         self.assertEqual(library.get_session_object(self.label), session)
 
     def test_create_ntlm_session_workflow(self):
+        """Should create NTLM session workflow."""
         library = self.library
         session = mock.Mock()
+        # pylint: disable=protected-access
         library._cache.switch.return_value = session
         library.create_ntlm_session(self.label, self.base_url,
                                     auth=('MY-DOMAIN', self.username, self.password))
@@ -186,23 +204,27 @@ class ExtendedRequestsLibraryTests(unittest.TestCase):
     @mock.patch('ExtendedRequestsLibrary.HTTPBasicAuth')
     @mock.patch('ExtendedRequestsLibrary.BackendApplicationClient')
     @mock.patch('ExtendedRequestsLibrary.OAuth2Session')
-    @mock.patch('ExtendedRequestsLibrary.logger')
-    def test_client_oauth2_workflow(self, mock_logger, mock_oauth2, mock_backend, mock_auth):
-        self.oauth2_workflow('client', mock_logger, mock_oauth2, mock_backend, mock_auth)
+    def test_client_oauth2_workflow(self, mock_oauth2, mock_backend, mock_auth):
+        """Should create client credentials OAuth2 session workflow."""
+        self.oauth2_workflow('client', mock_oauth2, mock_backend, mock_auth)
 
     @mock.patch('ExtendedRequestsLibrary.OAuth2Session')
     def test_delete_request_workflow(self, mock_oauth2):
+        """Delete method should return successfully."""
         self.method_request_workflow('delete', mock_oauth2)
 
     @mock.patch('ExtendedRequestsLibrary.OAuth2Session')
     def test_get_request_workflow(self, mock_oauth2):
+        """Get method should return successfully."""
         self.method_request_workflow('get', mock_oauth2, params=None)
 
     @mock.patch('ExtendedRequestsLibrary.OAuth2Session')
     @mock.patch('ExtendedRequestsLibrary.logger')
     def test_get_session_object_workflow(self, mock_logger, mock_oauth2):
+        """Should return session object successfully."""
         library = self.library
         oauth2_instance = mock_oauth2()
+        # pylint: disable=protected-access
         library._cache.switch.return_value = oauth2_instance
         library.get_session_object(self.label)
         library._cache.switch.assert_called_with(self.label)
@@ -210,62 +232,75 @@ class ExtendedRequestsLibraryTests(unittest.TestCase):
 
     @mock.patch('ExtendedRequestsLibrary.OAuth2Session')
     def test_head_request_workflow(self, mock_oauth2):
+        """Head method should return successfully."""
         self.method_request_workflow('head', mock_oauth2)
 
     @mock.patch('ExtendedRequestsLibrary.OAuth2Session')
     def test_options_request_workflow(self, mock_oauth2):
+        """Options method should return successfully."""
         self.method_request_workflow('options', mock_oauth2)
 
     @mock.patch('ExtendedRequestsLibrary.OAuth2Session')
     def test_patch_request_workflow(self, mock_oauth2):
+        """Patch method should return successfully."""
         self.method_request_workflow('patch', mock_oauth2, data=None, files=None)
 
     @mock.patch('ExtendedRequestsLibrary.OAuth2Session')
     def test_patch_request_workflow_with_files(self, mock_oauth2):
+        """Patch method with files should return successfully."""
         self.method_request_workflow('patch', mock_oauth2, data=None,
                                      files={'file.txt': '%s/file.txt' % self.cwd})
 
     @mock.patch('ExtendedRequestsLibrary.OAuth2Session')
     def test_post_request_workflow(self, mock_oauth2):
+        """Post method should return successfully."""
         self.method_request_workflow('post', mock_oauth2, data=None, files=None)
 
     @mock.patch('ExtendedRequestsLibrary.OAuth2Session')
     def test_post_request_workflow_with_files(self, mock_oauth2):
+        """Post method with files should return successfully."""
         self.method_request_workflow('post', mock_oauth2, data=None,
                                      files={'file.txt': '%s/file.txt' % self.cwd})
 
     @mock.patch('ExtendedRequestsLibrary.OAuth2Session')
     def test_put_request_workflow(self, mock_oauth2):
+        """Put method should return successfully."""
         self.method_request_workflow('put', mock_oauth2, data=None)
 
     @mock.patch('ExtendedRequestsLibrary.HTTPBasicAuth')
     @mock.patch('ExtendedRequestsLibrary.LegacyApplicationClient')
     @mock.patch('ExtendedRequestsLibrary.OAuth2Session')
-    @mock.patch('ExtendedRequestsLibrary.logger')
-    def test_password_oauth2_workflow(self, mock_logger, mock_oauth2, mock_legacy, mock_auth):
-        self.oauth2_workflow('password', mock_logger, mock_oauth2, mock_legacy, mock_auth)
+    def test_password_oauth2_workflow(self, mock_oauth2, mock_legacy, mock_auth):
+        """Should create password OAuth2 session workflow."""
+        self.oauth2_workflow('password', mock_oauth2, mock_legacy, mock_auth)
 
     @mock.patch('ExtendedRequestsLibrary.OAuth2Session')
     @mock.patch('ExtendedRequestsLibrary.logger')
     def test_finalize_response(self, mock_logger, mock_oauth2):
+        """Should finalize response."""
         oauth2_instance = mock_oauth2()
         type(oauth2_instance.head()).content = mock.PropertyMock(return_value=self.value)
         response = oauth2_instance.head()
+        # pylint: disable=protected-access
         self.library._finalize_response(oauth2_instance, response, 'HEAD')
         self.assertEqual(oauth2_instance.last_resp, response)
         mock_logger.debug.assert_called_with("%s response: %s" % ('HEAD', self.value))
 
     @mock.patch('ExtendedRequestsLibrary.requests')
     def test_should_register_url(self, mock_requests):
+        """Should register URL."""
         hostname = 'subdomain.domain.moo'
         library = self.library
+        # pylint: disable=protected-access
         self.assertFalse(hostname in library._primers)
         library._register_url('http://%s' % hostname)
         mock_requests.head.assert_called_with('http://%s' % hostname, verify=False)
         self.assertTrue(hostname in library._primers)
 
     def test_should_register_urls(self):
+        """Should register multiple URLs."""
         library = self.library
+        # pylint: disable=protected-access
         library._register_url = mock.Mock()
         library._register_urls(base_url='http://localhost1', token_url='https://localhost2')
         library._register_url.assert_any_call('http://localhost1')
@@ -273,7 +308,9 @@ class ExtendedRequestsLibraryTests(unittest.TestCase):
         self.assertTrue(library._register_url.call_count, 2)
 
     def test_should_init_session_with_header(self):
+        """Should init session with header."""
         session = mock.Mock()
+        # pylint: disable=protected-access
         self.library._session_init(session, base_url=self.base_url, headers={'key': 'value'},
                                    proxies=self.proxies, verify=self.verify,
                                    timeout=self.timeout, cookies=self.cookies)
@@ -286,7 +323,9 @@ class ExtendedRequestsLibraryTests(unittest.TestCase):
         self.assertEqual(self.library.verify, self.verify)
 
     def test_should_init_session_with_proxy(self):
+        """Should init session with proxy."""
         session = mock.Mock()
+        # pylint: disable=protected-access
         self.library._session_init(session, base_url=self.base_url, headers=self.headers,
                                    proxies={'key': 'value'}, verify=self.verify,
                                    timeout=self.timeout, cookies=self.cookies)
@@ -299,7 +338,9 @@ class ExtendedRequestsLibraryTests(unittest.TestCase):
         self.assertEqual(self.library.verify, self.verify)
 
     def test_should_init_session_without_header(self):
+        """Should init session without header."""
         session = mock.Mock()
+        # pylint: disable=protected-access
         self.library._session_init(session, base_url=self.base_url, headers=self.headers,
                                    proxies=self.proxies, verify=self.verify,
                                    timeout=self.timeout, cookies=self.cookies)
@@ -312,9 +353,11 @@ class ExtendedRequestsLibraryTests(unittest.TestCase):
         self.assertEqual(self.library.verify, self.verify)
 
     def test_should_not_init_without_session(self):
+        """Should not init session without session."""
         self.library.cookies = 'yum'
         self.library.timeout = 0
         self.library.verify = True
+        # pylint: disable=protected-access
         self.library._session_init(session=None)
         self.assertEqual(self.library.cookies, 'yum')
         self.assertEqual(self.library.timeout, 0)
