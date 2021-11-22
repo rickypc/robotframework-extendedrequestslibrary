@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 LIBRARY_NAME = ExtendedRequestsLibrary
+PYTHON = python3
 
 lc = $(subst A,a,$(subst B,b,$(subst C,c,$(subst D,d,$(subst E,e,$(subst F,f,$(subst G,g,$(subst H,h,$(subst I,i,$(subst J,j,$(subst K,k,$(subst L,l,$(subst M,m,$(subst N,n,$(subst O,o,$(subst P,p,$(subst Q,q,$(subst R,r,$(subst S,s,$(subst T,t,$(subst U,u,$(subst V,v,$(subst W,w,$(subst X,x,$(subst Y,y,$(subst Z,z,$1))))))))))))))))))))))))))
 
@@ -24,7 +25,7 @@ help:
 	@echo targets: clean, clean_dist, version, install_devel_deps, lint, test, doc, github_doc, testpypi, pypi
 
 clean:
-	python setup.py clean --all
+	$(PYTHON) setup.py clean --all
 	rm -rf .coverage htmlcov src/*.egg-info
 	find . -iname "*.pyc" -delete
 	find . -iname "__pycache__" | xargs rm -rf {} \;
@@ -33,7 +34,7 @@ clean_dist:
 	rm -rf dist
 
 version:
-	python -m robot.libdoc src/$(LIBRARY_NAME) version
+	$(PYTHON) -m robot.libdoc src/$(LIBRARY_NAME) version
 
 install_devel_deps:
 	pip install -e .
@@ -50,8 +51,8 @@ test:clean
 	coverage report
 
 doc:clean
-	python -m robot.libdoc src/$(LIBRARY_NAME) doc/$(LIBRARY_NAME).html
-	python -m analytics doc/$(LIBRARY_NAME).html
+	$(PYTHON) -m robot.libdoc src/$(LIBRARY_NAME) doc/$(LIBRARY_NAME).html
+	$(PYTHON) -m analytics doc/$(LIBRARY_NAME).html
 
 github_doc:clean
 	git checkout gh-pages
@@ -60,11 +61,11 @@ github_doc:clean
 	git checkout master	
 
 testpypi:clean_dist doc
-	python setup.py register -r test
-	python setup.py sdist upload -r test --sign
+	$(PYTHON) setup.py register -r test
+	$(PYTHON) setup.py sdist upload -r test --sign
 	@echo https://testpypi.python.org/pypi/robotframework-$(call lc,$(LIBRARY_NAME))/
 
 pypi:clean_dist doc
-	python setup.py register -r pypi
-	python setup.py sdist upload -r pypi --sign
+	$(PYTHON) setup.py register -r pypi
+	$(PYTHON) setup.py sdist upload -r pypi --sign
 	@echo https://pypi.python.org/pypi/robotframework-$(call lc,$(LIBRARY_NAME))/
