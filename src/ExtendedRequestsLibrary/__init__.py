@@ -107,7 +107,7 @@ class ExtendedRequestsLibrary(RequestsLibrary, Utility):
 
     def __getattribute__(self, name):
         """Returns requested attribute."""
-        if name in ('delete', 'get', 'head', 'options', 'patch', 'post', 'put', 'to_json'):
+        if name in ('delete', 'get', 'head', 'options', 'patch', 'post', 'put'):
             raise AttributeError("'%s' is deprecated." % name)
         return super(ExtendedRequestsLibrary, self).__getattribute__(name)
 
